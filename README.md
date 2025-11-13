@@ -15,7 +15,7 @@ Results-driven and detail-oriented **Senior .NET Full Stack Developer / Software
 - JavaScript, TypeScript, HTML5, CSS3, SCSS, Bootstrap  
 
 ### 🏗️ **Architecture & Patterns**
-- Clean Architecture, Microservices, Micro  
+- Clean Architecture, Microservices, Micro Front-End
 - Multi-layered design  
 - Design Patterns  
 
