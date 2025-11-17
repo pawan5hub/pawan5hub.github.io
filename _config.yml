@@ -19,9 +19,9 @@ plugins:
 
 # Collections
 collections:
-  blog_posts:
+  blogs_posts:
     output: true
-    permalink: /_blogs/posts/:slugs
+    permalink: /blogs/posts/:slugs
 
 # Exclude from build
 exclude:
@@ -45,7 +45,7 @@ defaults:
     values:
       layout: "default"
   - scope:
-      path: "blog/posts"
+      path: "blogs/posts"
       type: "pages"
     values:
       layout: "blog-post"
