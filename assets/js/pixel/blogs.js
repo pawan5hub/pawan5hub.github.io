@@ -6,7 +6,7 @@ class Blogs extends GenerateSvg {
     this.allBlogs = [];
     this.filteredBlogs = [];
     this.currentPage = 1;
-    this.itemsPerPage = 2;
+    this.itemsPerPage = 9;
     this.svgGenerator = null;
   }
 

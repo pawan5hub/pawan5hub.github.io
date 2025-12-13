@@ -4,7 +4,7 @@ class Dev {
     this.allRepos = [];
     this.filteredRepos = [];
     this.currentPage = 1;
-    this.itemsPerPage = 1;
+    this.itemsPerPage = 9;
     this.config = null;
   }
 
