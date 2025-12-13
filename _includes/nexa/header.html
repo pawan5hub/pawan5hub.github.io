@@ -1,0 +1,19 @@
+<header class="site-header">
+  <div class="header-container">
+    <div class="header-brand">
+      <a href="/" class="brand-link">
+        <span class="brand-symbol">@</span>
+        <span class="brand-name" data-site-name></span>
+      </a>
+    </div>
+    {% include nexa/nav.html %}
+    <div class="header-controls">
+      {% include theme-switcher.html %}
+      <!-- -->
+      {% include layout-switcher.html %}
+      <button class="mobile-menu-toggle" aria-label="Toggle menu" mobile-menu-toggle>
+        <span class="hamburger"></span>
+      </button>
+    </div>
+  </div>
+</header>

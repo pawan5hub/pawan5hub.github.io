@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        background-color: var(--background, #1a1a1a);
+      }
+    </style>
+    {% include style.html %}
+    <!-- -->
+    {% include pixel/import-css.html %}
+    <!-- -->
+    {% include import-css.html %}
+    <!-- -->
+    {% include head.html %}
+  </head>
+  <body data-layout="pixel" data-theme="charcoal">
+    {% include pixel/loader.html size=7 gap=10 radius=3 %}
+    <div class="status-bar">{% include pixel/header.html %}</div>
+    <div class="page-container">
+      {% include pixel/details/profile.html %}
+      <div class="nav-container">
+        {% include pixel/details/tab.html %}
+        <main class="main-content">
+            <div class="content-track" data-main-track>{{ content }}</div>
+        </main>
+      </div>
+    </div>
+    <div class="footer-bar"></div>
+
+    <!-- -->
+    {% include import-js.html %}
+    <!-- -->
+    {% include pixel/import-js.html %}
+    <!-- -->
+    {% include import-initjs.html %}
+  </body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html,
+      body {
+        background-color: var(--background, #1a1a1a);
+      }
+    </style>
+    {% if page.ignore != true %}
+    <script>
+      (function () {
+        const callBack = () => {
+          fetch(`${window.location.origin}/404.html`)
+            .then((response) => {
+              if (!response.ok) throw new Error("Page not found");
+              return response.text();
+            })
+            .then((html) => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, "text/html");
+              doc.documentElement.querySelectorAll("head script").forEach((s) => s.remove());
+              const root404 = doc.documentElement.querySelector("[data-error-page]");
+              if (root404) root404.style.display = "flex";
+              html = doc.documentElement.outerHTML;
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .catch((error) => {
+              console.error("Error loading theme:", error);
+              document.body.innerHTML = "<h1>Page not found</h1>";
+            });
+        };
+
+        const theme = localStorage.getItem("layout") || "nexa";
+        let pagePath = window.location.pathname;
+        if (pagePath === "/" || pagePath === "/index.html") {
+          pagePath = "/index.html";
+        }
+        pagePath = pagePath.replace(/^\//, "");
+        fetch(`${window.location.origin}/${theme}/${pagePath}`)
+          .then((response) => {
+            if (!response.ok) callBack();
+            return response.text();
+          })
+          .then((html) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            if (doc?.body) {
+              doc.body.style.opacity = "0";
+            }
+            html = doc.documentElement.outerHTML;
+            document.open();
+            document.write(html);
+            document.close();
+            setTimeout(() => {
+              if (document?.body) {
+                document.body.removeAttribute("style");
+              }
+            }, 1000);
+          })
+          .catch((error) => {
+            callBack();
+          });
+      })();
+    </script>
+    {% endif %}
+    <meta charset="UTF-8" />
+  </head>
+  <body data-layout="nexa" data-theme="charcoal">
+    {% if page.ignore != true %} {% include nexa/loader.html size=7 gap=10 radius=3 %} {% endif %} {{content}}
+  </body>
+</html>

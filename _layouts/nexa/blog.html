@@ -1,0 +1,53 @@
+---
+layout: nexa/default
+---
+
+<article class="blog-post">
+  <header class="post-header">
+    <div class="post-header-container">
+      <div>
+        <nav class="breadcrumb">
+          <a href="/">Home</a>
+          <span>/</span>
+          <a href="/blogs/">Blog</a>
+          <span>/</span>
+          <a href="/blogs/" data-blog-meta="categorySlug"></a>
+          <span>/</span>
+          <span class="current" data-blog-meta="title"></span>
+        </nav>
+        <div class="post-meta">
+          <span class="post-category" data-blog-meta="category"></span>
+          <a class="post-date" data-blog-meta="originalUrl" data-blog-meta-text="dateFormatted" target="_blank"></a>
+          <span class="post-author"><span data-blog-meta="author"></span></span>
+          <span class="post-reading-time"><span data-blog-meta="readTime"></span></span>
+        </div>
+        <h1 class="post-title" data-blog-meta="title"></h1>
+        <p class="post-excerpt" data-blog-meta="excerpt"></p>
+      </div>
+      <div class="post-share social-links">
+        <span class="contact-social post-share-btn">
+          <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.5 2.5 0 0 0 0-1.39l7.05-4.11A3 3 0 1 0 14 5a3 3 0 0 0 .05.55L7 9.7A3 3 0 1 0 7 14.3l7.05 4.15c-.03.17-.05.35-.05.55a3 3 0 1 0 3-3z" />
+          </svg>
+          <span>Share on</span>
+        </span>
+        <div class="share-buttons" data-blog-share></div>
+      </div>
+    </div>
+  </header>
+  <div class="post-content">
+    <div class="post-container">
+      {{ content }}
+      <div class="post-footer">
+        <div class="post-tags" id="blog-tags" data-main-content>
+          <!-- Tags will be dynamically inserted -->
+        </div>
+        <nav class="post-navigation">
+          <a href="#" class="btn" id="prev-post" style="display: none">&lt;~~ Previous Post</a>
+          <a href="/blogs/" class="btn">All Posts</a>
+          <a href="#" class="btn" id="next-post" style="display: none">Next Post ~~&gt;</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</article>

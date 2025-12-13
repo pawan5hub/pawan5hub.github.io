@@ -1,0 +1,20 @@
+{% if page.scripts %}
+  {% if page.scripts.size %}
+    {% for scriptFile in page.scripts %}
+     <script src="{{ site.baseurl }}/assets/js/nexa/{{ scriptFile }}.js"></script>
+    {% endfor %}
+  {% else %}
+    <script src="{{ site.baseurl }}/assets/js/nexa/{{ page.scripts }}.js"></script>
+  {% endif %}
+{% endif %}
+
+{% if page.modules %}
+  {% if page.modules.size %}
+    {% for scriptFile in page.modules %}
+     <script type="module" src="{{ site.baseurl }}/assets/js/nexa/{{ scriptFile }}.js"></script>
+    {% endfor %}
+  {% else %}
+    <script type="module" src="{{ site.baseurl }}/assets/js/nexa/{{ page.modules }}.js"></script>
+  {% endif %}
+{% endif %}
+<script type="module" src="{{ site.baseurl }}/assets/js/navigation.js"></script>

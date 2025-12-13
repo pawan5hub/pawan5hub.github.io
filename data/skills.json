@@ -1,0 +1,75 @@
+[
+  {
+    "category": "Language",
+    "icon": "🗣︎",
+    "skills": [
+      { "name": "English", "level": "proficient" },
+      { "name": "Hindi", "level": "expert" }
+    ]
+  },
+  {
+    "category": "Backend",
+    "icon": "🖳",
+    "skills": [
+      { "name": "C#", "level": "proficient" },
+      { "name": ".NET Core", "level": "proficient" },
+      { "name": "ASP.NET Web API", "level": "intermediate" },
+      { "name": "EF Core", "level": "intermediate" },
+      { "name": "LINQ", "level": "proficient" }
+    ]
+  },
+  {
+    "category": "Frontend",
+    "icon": "⌘",
+    "skills": [
+      { "name": "Angular", "level": "expert" },
+      { "name": "React", "level": "beginner" },
+      { "name": "TypeScript", "level": "proficient" },
+      { "name": "JavaScript", "level": "intermediate" },
+      { "name": "HTML5", "level": "expert" },
+      { "name": "CSS3", "level": "expert" },
+      { "name": "Bootstrap", "level": "proficient" }
+    ]
+  },
+  {
+    "category": "Architecture",
+    "icon": "⌬",
+    "skills": [
+      { "name": "Clean Architecture", "level": "proficient" },
+      { "name": "Microservices", "level": "proficient" },
+      { "name": "Design Patterns", "level": "proficient" },
+      { "name": "CQRS", "level": "expert" },
+      { "name": "Mediator", "level": "expert" },
+      { "name": "Micro Frontend", "level": "intermediate" }
+    ]
+  },
+  {
+    "category": "DevOps & Cloud",
+    "icon": "☁︎",
+    "skills": [
+      { "name": "Docker", "level": "proficient" },
+      { "name": "Kubernetes", "level": "intermediate" },
+      { "name": "AWS", "level": "intermediate" },
+      { "name": "Jenkins", "level": "intermediate" },
+      { "name": "Kafka", "level": "intermediate" },
+      { "name": "CI/CD", "level": "intermediate" }
+    ]
+  },
+  {
+    "category": "Databases",
+    "icon": "⟁",
+    "skills": [
+      { "name": "SQL Server", "level": "proficient" },
+      { "name": "Oracle 11g", "level": "intermediate" }
+    ]
+  },
+  {
+    "category": "Methodologies",
+    "icon": "⊟",
+    "skills": [
+      { "name": "Agile / Scrum", "level": "expert" },
+      { "name": "DevOps", "level": "basic" },
+      { "name": ".NET Development SDLC", "level": "proficient" }
+    ]
+  }
+]

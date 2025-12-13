@@ -1,0 +1,15 @@
+<section class="section reveal" id="dev">
+  <div class="section-header">
+    <h2 class="section-title">#projects</h2>
+    <div class="section-bar"><p></p></div>
+    <a href="/dev" class="view-all" data-disable-current>View all ~~&gt;</a>
+    <a href="/" class="view-all" data-enable-current>&lt;~~ Back</a>
+  </div>
+  <div class="projects-container">
+    <div class="pager" data-project-pager data-enable-current></div>
+    <div data-filter data-enable-current></div>
+    <div class="projects-grid" data-projects></div>
+    <div class="pager" data-project-pager data-enable-current></div>
+  </div>
+  {% include nexa/decorators/dev.html %}
+</section>

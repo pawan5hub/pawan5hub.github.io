@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html,
+      body {
+        background-color: var(--background, #1a1a1a);
+      }
+    </style>
+    <script type="module" src="{{ site.baseurl }}/assets/js/init.js"></script>
+
+    <script type="module" src="{{ site.baseurl }}/assets/js/redirect.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        window.APP_BASEURL = "";
+        
+        window?.App?.initModuleFile && window?.App?.initModuleFile?.();
+      })();
+    </script>
+    <meta charset="UTF-8" />
+  </head>
+  <body data-layout="nexa" data-theme="charcoal" style="opacity: 0">
+    <div data-layout-content="">{{content}}</div>
+  </body>
+</html>

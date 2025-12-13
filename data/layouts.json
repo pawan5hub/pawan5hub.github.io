@@ -1,0 +1,23 @@
+{
+  "layouts": [
+    {
+      "id": "nexa",
+      "name": "Nexa Style (Default)",
+      "description": "Dark theme with geometric patterns and side navigation",
+      "preview": "/assets/images/layout-nexa.png"
+    },
+    {
+      "id": "algo",
+      "name": "Algo minimal Clean",
+      "description": "Simple, clean layout with centered content",
+      "preview": "/assets/images/layout-algo.png"
+    },
+    {
+      "id": "pixel",
+      "name": "Pixel Modern Portfolio",
+      "description": "Pixel Modern card-based layout with smooth transitions",
+      "preview": "/assets/images/layout-pixel.png"
+    }
+  ],
+  "default": "nexa"
+}

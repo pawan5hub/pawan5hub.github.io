@@ -1,0 +1,34 @@
+[
+  {
+    "degree": "LL.B (Bachelor of Laws)",
+    "institution": "Veer Bahadur Singh Purvanchal University",
+    "period": "2020 - 2023",
+    "score": "59.6%",
+    "location": "Jaunpur, Uttar Pradesh, India",
+    "link": ["Request Document", ""]
+  },
+  {
+    "degree": "MCA (Master of Computer Applications)",
+    "institution": "Lovely Professional University",
+    "period": "2014 - 2016",
+    "score": "60.3%",
+    "location": "Phagwara, Panjab, India",
+    "link": ["Request Document", ""]
+  },
+  {
+    "degree": "GNIIT (Software Engineering Diploma)",
+    "institution": "NIIT",
+    "period": "2010 - 2014",
+    "score": "79%",
+    "location": "Janakpuri Centre, New Delhi, India",
+    "link": ["Request Document", ""]
+  },
+  {
+    "degree": "B.Sc. (Information Technology)",
+    "institution": "Kuvempu University",
+    "period": "2010 - 2013",
+    "score": "64.1%",
+    "location": "Shimoga Dist., Karnataka, India",
+    "link": ["Request Document", ""]
+  }
+]

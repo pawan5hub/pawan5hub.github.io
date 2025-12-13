@@ -1,0 +1,83 @@
+{
+  "items": [
+    {
+      "title": "I'm",
+      "url": "/#iam",
+      "icon": "🏠︎",
+      "section": "iam",
+      "id": "iam"
+    },
+    {
+      "title": "Stack",
+      "url": "/#stack",
+      "icon": "💻︎",
+      "section": "stack",
+      "id": "stack",
+      "full_title": "Tech DNA",
+      "desc": "The tech ecosystem behind the solutions I design, develop, and deliver."
+    },
+    {
+      "title": "Journey",
+      "url": "/#journey",
+      "icon": "💼︎",
+      "section": "journey",
+      "id": "journey",
+      "full_title": "Growth As An Engineer",
+      "desc": "Each role a chapter — each chapter a step toward mastery."
+    },
+    {
+      "title": "Learning",
+      "url": "/#learning",
+      "icon": "🎓︎",
+      "section": "learning",
+      "id": "learning",
+      "full_title": "Academic Timeline",
+      "desc": "The academic path that fueled my curiosity and technical growth."
+    },
+    {
+      "title": "Kudos",
+      "url": "/#kudos",
+      "icon": "🏆︎",
+      "section": "kudos",
+      "id": "kudos",
+      "full_title": "Where I Made an Impact",
+      "desc": "Celebrating the milestones that reflect dedication, performance, and craftsmanship."
+    },
+    {
+      "title": "Dev",
+      "url": "/dev",
+      "icon": "🎯︎",
+      "section": "dev",
+      "id": "dev",
+      "full_title": "Dev Lab Projects",
+      "desc": "The experiments, prototypes, production-ready builds and projects that bring my ideas to life — straight from GitHub."
+    },
+    {
+      "title": "Blog",
+      "url": "/blogs",
+      "icon": "📝︎",
+      "section": "blogs",
+      "id": "blogs",
+      "full_title": "Insight Hub",
+      "desc": "A curated collection of my writings, insights, and published work from different platforms."
+    },
+    {
+      "title": "About",
+      "url": "/#about",
+      "icon": "👤︎",
+      "section": "about",
+      "id": "about",
+      "full_title": "The Mind Behind This Universe",
+      "desc": "A blend of curiosity, creativity, and engineering — that’s who I am."
+    },
+    {
+      "title": "Contact",
+      "url": "/#contact",
+      "icon": "📞︎",
+      "section": "contact",
+      "id": "contact"
+    }
+  ],
+  "title": "A Glimpse Into My Universe",
+  "desc": "A curated collection of all sections that shape my professional identity — from skills and experience to projects, education, achievements, and more."
+}

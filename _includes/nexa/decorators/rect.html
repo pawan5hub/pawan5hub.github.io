@@ -1,0 +1,23 @@
+{% assign w = include.width  | default: 86 %}
+{% assign h = include.height | default: 86 %}
+{% assign stroke = include.stroke | default: "var(--primary)" %}
+{% assign stroke_w = include.stroke_width | default: 1 %}
+{% assign radius = include.radius | default: 0 %}
+{% assign svg_class  = include.svg_class  | default: "rect" %}
+  <svg xmlns="http://www.w3.org/2000/svg"
+      width="{{ w }}"
+      height="{{ h }}"
+      viewBox="0 0 {{ w }} {{ h }}"
+      fill="none" {% if svg_class != '' %}class="{{ svg_class }}"{% endif %}>
+
+    <rect 
+      x="{{ stroke_w | divided_by: 2 }}"
+      y="{{ stroke_w | divided_by: 2 }}"
+      width="{{ w | minus: stroke_w }}"
+      height="{{ h | minus: stroke_w }}"
+      stroke="{{ stroke }}"
+      stroke-width="{{ stroke_w }}"
+      rx="{{ radius }}"
+      ry="{{ radius }}"
+    />
+  </svg>

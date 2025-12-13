@@ -1,0 +1,33 @@
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: var(--z-dropdown);
+  background-color: var(--background);
+  box-shadow: 0 var(--border-2) var(--space-2) rgb(from var(--cardHeader) r g b / 0.60) 70%;
+  transition: var(--transition-base);
+}
+
+/* When scrolling down - hide header */
+.site-header.scroll-down {
+  transform: translateY(-100%);
+}
+
+/* When scrolling up - show header */
+.site-header.scroll-up {
+  transform: translateY(0);
+  box-shadow: 0 var(--border-2) var(--space-4) rgb(from var(--cardHeader) r g b / 0.15) 70%;
+}
+
+/* Optional: Add backdrop blur effect when scrolled */
+.site-header.scroll-up,
+.site-header.scroll-down {
+  backdrop-filter: blur(var(--space-2));
+  background-color: rgb(from var(--background) r g b / 0.60) 70%;
+}
+
+/* Ensure content doesn't jump when header is fixed */
+body {
+  padding-top: var(--space-15); /* Adjust based on your header height */
+}

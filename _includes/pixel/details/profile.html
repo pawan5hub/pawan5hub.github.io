@@ -1,0 +1,21 @@
+<div class="profile-container">
+  <div class="avatar-container">
+    <div></div>
+    <div class="profile-image">
+      <div class="status-badge"><span class="badge-box"></span> <span profile-data>Working at DXC</span></div>
+      <div class="avatar-img">
+        <img src="{{ 'assets/images/profile-wbg2.png' | absolute_url }}" alt="Pawan Pandey" class="profile-photo" />
+        <div class="image-shades"></div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+  <div class="profile-info">
+    {% if page.permalink == "/pixel/contact/" %}
+        {% include pixel/details/contact-info.html %}
+    {% else %}
+        {% include pixel/details/social.html %}
+    {% endif %}
+  </div>
+  <div class="profile-content-card"></div>
+</div>

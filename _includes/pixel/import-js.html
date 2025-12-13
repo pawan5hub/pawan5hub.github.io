@@ -1,0 +1,21 @@
+<!-- <script type="module" src="{{ site.baseurl }}/assets/js/device.js"></script> -->
+<script type="module" src="{{ site.baseurl }}/assets/js/status.js"></script>
+{% if page.scripts %}
+  {% if page.scripts.size %}
+    {% for scriptFile in page.scripts %}
+     <script src="{{ site.baseurl }}/assets/js/pixel/{{ scriptFile }}.js"></script>
+    {% endfor %}
+  {% else %}
+    <script src="{{ site.baseurl }}/assets/js/pixel/{{ page.scripts }}.js"></script>
+  {% endif %}
+{% endif %}
+{% if page.modules %}
+  {% if page.modules.size %}
+    {% for scriptFile in page.modules %}
+     <script type="module" src="{{ site.baseurl }}/assets/js/pixel/{{ scriptFile }}.js"></script>
+    {% endfor %}
+  {% else %}
+    <script type="module" src="{{ site.baseurl }}/assets/js/pixel/{{ page.modules }}.js"></script>
+  {% endif %}
+{% endif %}
+

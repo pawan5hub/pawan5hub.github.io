@@ -1,0 +1,14 @@
+{% if page.stylesheets %}
+  {% assign layout = page.layout | split: "/" | first %}
+  {% if page.stylesheets.size %}
+    {% for stylesheetFile in page.stylesheets %}
+      <link rel="preload" href="{{ site.baseurl }}/assets/css/{{layout}}/{{ stylesheetFile }}.css?v={{ site.version }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+      <noscript><link rel="stylesheet" href="{{ site.baseurl }}/assets/css/nexa/{{ stylesheetFile }}.css?v={{ site.version }}"></noscript>
+    {% endfor %}
+  {% else %}
+     <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/{{layout}}/{{ page.stylesheets }}.css?v={{ site.version }}" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+     <noscript><link rel="stylesheet" href="{{ site.baseurl }}/assets/css/{{layout}}/{{ page.stylesheets }}.css?v={{ site.version }}"></noscript>
+  {% endif %}
+{% endif %}
+<link rel="preload" href="{{ site.baseurl }}/assets/css/{{layout}}/responsive.css?v={{ site.version }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="{{ site.baseurl }}/assets/css/{{layout}}/responsive.css?v={{ site.version }}"></noscript>

@@ -1,0 +1,32 @@
+<section class="section reveal" id="iam">
+  <section class="hero">
+    <div class="hero-content">
+      <h1>
+        <span class="name" data-iam="short_name"></span> is a <span class="highlight" data-iam="title"></span> and<br />
+        <span class="highlight" data-iam="subtitle"></span>
+      </h1>
+      <p class="hero-desc" data-iam="description"></p>
+      <a href="#contact" class="btn">Get in Touch !!</a>
+    </div>
+    <div class="hero-image">
+      <div class="status-badge"><span class="badge-box"></span> <span data-iam="profile"></span></div>
+      <img src="{{ 'assets/images/profile-wbg2.png' | absolute_url }}" alt="Pawan Pandey" class="profile-photo" />
+      <div class="image-shades"></div>
+      {% include nexa/decorators/hero.html %}
+    </div>
+  </section>
+
+  <section class="quote-box ">
+    <fieldset class="quote-text quotes">
+      <legend>"</legend>
+      <p data-iam="quote"></p>
+    </fieldset>
+    <fieldset class="quote-author quotes">
+      <legend>"</legend>
+      <p data-iam="author"></p>
+    </fieldset>
+    <div class="section-background"> 
+      {% include nexa/decorators/rect.html width=130 height=80 %}
+    </div>
+  </section>
+</section>

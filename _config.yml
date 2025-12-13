@@ -1,0 +1,350 @@
+title: Pawan Pandey - Full journey Developer
+short_name: Pawan
+email: Pawan4email@gmail.com
+description: >-
+  Senior .NET Full journey Developer with 11+ years of experience in designing,
+  developing, and deploying enterprise-grade web applications.
+baseurl: ""
+url: "http://localhost"
+github_username: pawan5hub
+linkedin_username: pawan-pandey-48842a79
+location: "Noida, Uttar Pradesh, India"
+phone: "+91-8285814645"
+version: "1.0.0"
+# Build settings
+theme: minima
+markdown: kramdown
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+defaults:
+  # common Setup
+  - scope:
+      path: "index.html"
+      type: "pages"
+    values:
+      layout: common
+  - scope:
+      path: "pages/stack"
+      type: "pages"
+    values:
+      permalink: "/stack/"
+      layout: "common"
+  - scope:
+      path: "pages/journey"
+      type: "pages"
+    values:
+      permalink: "/journey/"
+      layout: "common"
+  - scope:
+      path: "pages/learning"
+      type: "pages"
+    values:
+      permalink: "/learning/"
+      layout: "common"
+  - scope:
+      path: "pages/kudos"
+      type: "pages"
+    values:
+      permalink: "/kudos/"
+      layout: "common"
+  - scope:
+      path: "pages/about"
+      type: "pages"
+    values:
+      permalink: "/about/"
+      layout: "common"
+  - scope:
+      path: "pages/contact"
+      type: "pages"
+    values:
+      permalink: "/contact/"
+      layout: "common"
+  - scope:
+      path: "pages/dev"
+      type: "pages"
+    values:
+      permalink: "/dev/"
+      layout: "common"
+  - scope:
+      path: "pages/blogs"
+      type: "pages"
+    values:
+      permalink: "/blogs/"
+      layout: "common"
+  # Nexa Setup
+  - scope:
+      path: "pages/nexa"
+      type: "pages"
+    values:
+      permalink: /nexa/
+      layout: nexa/default
+      # baseModules: [observable, paginator]
+      modules: [about, contact, learning, stack, kudos, journey, dev, iam, social]
+      stylesheets: [about, contact, learning, stack, kudos, journey, dev, iam, social]
+  - scope:
+      path: "pages/nexa/stack"
+      type: "pages"
+    values:
+      permalink: /nexa/stack/
+      layout: nexa/default
+      modules: stack
+      stylesheets: [stack, social]
+  - scope:
+      path: "pages/nexa/journey"
+      type: "pages"
+    values:
+      permalink: /nexa/journey/
+      layout: nexa/default
+      modules: [journey]
+      stylesheets: [journey, social]
+  - scope:
+      path: "pages/nexa/learning"
+      type: "pages"
+    values:
+      permalink: /nexa/learning/
+      layout: nexa/default
+      modules: [learning]
+      stylesheets: [learning, social]
+  - scope:
+      path: "pages/nexa/kudos"
+      type: "pages"
+    values:
+      permalink: /nexa/kudos/
+      layout: nexa/default
+      modules: [kudos]
+      stylesheets: [kudos, social]
+  - scope:
+      path: "pages/nexa/about"
+      type: "pages"
+    values:
+      permalink: /nexa/about/
+      layout: nexa/default
+      modules: [about]
+      stylesheets: [about, social]
+  - scope:
+      path: "pages/nexa/contact"
+      type: "pages"
+    values:
+      permalink: /nexa/contact/
+      layout: nexa/default
+      modules: [contact]
+      stylesheets: [contact, social]
+  - scope:
+      path: "pages/nexa/dev"
+      type: "pages"
+    values:
+      permalink: /nexa/dev/
+      layout: nexa/default
+      # baseModules: [observable, paginator]
+      modules: dev
+      stylesheets: [dev, social]
+  - scope:
+      path: "pages/nexa/blogs"
+      type: "pages"
+    values:
+      permalink: /nexa/blogs/
+      layout: nexa/blogs
+      # baseModules: [gen-svg, observable, paginator]
+      modules: [blogs]
+      stylesheets: [blogs, social]
+  # Pixel Setup
+  - scope:
+      path: "pages/pixel"
+      type: "pages"
+    values:
+      permalink: /pixel/
+      layout: pixel/default
+      # baseModules: [gen-svg, observable, paginator]
+      modules: [tab, iam, stack, journey, learning, kudos, about, contact, social, dev, blogs]
+      stylesheets: [status, profile, tab, iam, stack, journey, learning, kudos, about, contact, dev, blogs]
+  - scope:
+      path: "pages/pixel/stack"
+      type: "pages"
+    values:
+      permalink: /pixel/stack/
+      layout: pixel/default
+      modules: stack
+      stylesheets: [stack, profile, tab]
+  - scope:
+      path: "pages/pixel/journey"
+      type: "pages"
+    values:
+      permalink: /pixel/journey/
+      layout: pixel/default
+      modules: [journey]
+      stylesheets: [journey, profile, tab]
+  - scope:
+      path: "pages/pixel/learning"
+      type: "pages"
+    values:
+      permalink: /pixel/learning/
+      layout: pixel/default
+      modules: [learning]
+      stylesheets: [learning, profile, tab]
+  - scope:
+      path: "pages/pixel/kudos"
+      type: "pages"
+    values:
+      permalink: /pixel/kudos/
+      layout: pixel/default
+      modules: [kudos]
+      stylesheets: [kudos, profile, tab]
+  - scope:
+      path: "pages/pixel/about"
+      type: "pages"
+    values:
+      permalink: /pixel/about/
+      layout: pixel/default
+      modules: [about]
+      stylesheets: [about, profile, tab]
+  - scope:
+      path: "pages/pixel/contact"
+      type: "pages"
+    values:
+      permalink: /pixel/contact/
+      layout: pixel/default
+      modules: [contact]
+      stylesheets: [contact, profile, tab]
+  - scope:
+      path: "pages/pixel/dev"
+      type: "pages"
+    values:
+      permalink: /pixel/dev/
+      layout: pixel/default
+      # baseModules: [observable, paginator]
+      modules: [dev, tab]
+      stylesheets: [dev, profile, tab]
+  - scope:
+      path: "pages/pixel/blogs"
+      type: "pages"
+    values:
+      permalink: /pixel/blogs/
+      layout: pixel/blogs
+      # baseModules: [gen-svg, observable, paginator]
+      modules: [blogs, tab]
+      stylesheets: [blogs, profile, tab]
+  # Algo Setup
+  - scope:
+      path: "pages/algo"
+      type: "pages"
+    values:
+      permalink: /algo/
+      layout: algo/default
+      # baseModules: []
+      modules: [iam, info, stack, universe, contact, about, learning, kudos, journey, dev, blogs]
+      stylesheets: [iam, info, stack, universe, contact, footer, about, learning, kudos, journey, dev, blogs]
+  - scope:
+      path: "pages/algo/stack"
+      type: "pages"
+    values:
+      permalink: /algo/stack/
+      layout: algo/default
+      modules: [stack, info, iam, contact ]
+      stylesheets: [stack, info, contact, footer]
+  - scope:
+      path: "pages/algo/journey"
+      type: "pages"
+    values:
+      permalink: /algo/journey/
+      layout: algo/default
+      modules: [journey, info, iam, contact]
+      stylesheets: [journey, info, contact, footer]
+  - scope:
+      path: "pages/algo/learning"
+      type: "pages"
+    values:
+      permalink: /algo/learning/
+      layout: algo/default
+      modules: [learning, info, iam, contact]
+      stylesheets: [learning, info, contact, footer]
+  - scope:
+      path: "pages/algo/kudos"
+      type: "pages"
+    values:
+      permalink: /algo/kudos/
+      layout: algo/default
+      modules: [kudos, info, iam, contact]
+      stylesheets: [kudos, info, contact, footer]
+  - scope:
+      path: "pages/algo/about"
+      type: "pages"
+    values:
+      permalink: /algo/about/
+      layout: algo/default
+      modules: [about, info, iam, contact]
+      stylesheets: [about, info, contact, footer]
+  - scope:
+      path: "pages/algo/contact"
+      type: "pages"
+    values:
+      permalink: /algo/contact/
+      layout: algo/default
+      modules: [contact, info]
+      stylesheets: [contact, info, iam, footer]
+  - scope:
+      path: "pages/algo/dev"
+      type: "pages"
+    values:
+      permalink: /algo/dev/
+      layout: algo/default
+      # baseModules: [observable, paginator]
+      modules: [dev, info, iam, contact]
+      stylesheets: [dev, info, contact, footer]
+  - scope:
+      path: "pages/algo/blogs"
+      type: "pages"
+    values:
+      permalink: /algo/blogs/
+      layout: algo/blogs
+      # baseModules: [gen-svg, observable, paginator]
+      modules: [blogs, info, iam, contact]
+      stylesheets: [blogs, info, contact, footer]
+ 
+  # Blog Post Setup
+  - scope:
+      path: "blogs"
+      type: "pages"
+    values:
+      permalink: /:path
+      layout: blog-layout
+  - scope:
+      path: "blogs/layouts/nexa.html"
+      type: "pages"
+    values:
+      permalink: /blogs/nexa.html
+      layout: nexa/blog
+      modules: blog
+      stylesheets: [blog, social]
+  - scope:
+      path: "blogs/layouts/pixel.html"
+      type: "pages"
+    values:
+      permalink: /blogs/pixel.html
+      layout: pixel/blog
+      modules: blog
+      stylesheets: [blog, profile, tab]
+  - scope:
+      path: "blogs/layouts/algo.html"
+      type: "pages"
+    values:
+      permalink: /blogs/algo.html
+      layout: algo/blog
+      modules: blog
+      stylesheets: [blog, info, contact, footer]
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .bundle
+  - .sass-cache
+  - .jekyll-cache
+  - .DS_Store
+  - "*.swp"
+  - "*.swo"
+  - "*~"
