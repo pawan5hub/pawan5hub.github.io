@@ -18,6 +18,12 @@ class LayoutManager {
     await this.loadLayouts();
     this.applyLayout(this.currentLayout);
     this.setupUI();
+    // This only fires when localStorage is changed in ANOTHER tab/window
+    window.addEventListener("storage", (event) => {
+      if (event.key === "layout") {
+        this.reloadNextLayout(event.newValue);
+      }
+    });
   }
 
   async loadLayouts() {
@@ -39,23 +45,23 @@ class LayoutManager {
 
     const triggerRect = this.layoutToggle.getBoundingClientRect();
     const dropdownRect = this.layoutDropdown.getBoundingClientRect();
-    
+
     // Get computed styles for margins
     const triggerStyle = window.getComputedStyle(this.layoutToggle);
     const dropdownStyle = window.getComputedStyle(this.layoutDropdown);
-    
+
     const triggerMargin = {
       top: parseFloat(triggerStyle.marginTop) || 0,
       right: parseFloat(triggerStyle.marginRight) || 0,
       bottom: parseFloat(triggerStyle.marginBottom) || 0,
-      left: parseFloat(triggerStyle.marginLeft) || 0
+      left: parseFloat(triggerStyle.marginLeft) || 0,
     };
-    
+
     const dropdownMargin = {
       top: parseFloat(dropdownStyle.marginTop) || 0,
       right: parseFloat(dropdownStyle.marginRight) || 0,
       bottom: parseFloat(dropdownStyle.marginBottom) || 0,
-      left: parseFloat(dropdownStyle.marginLeft) || 0
+      left: parseFloat(dropdownStyle.marginLeft) || 0,
     };
 
     const viewportWidth = window.innerWidth;
@@ -68,17 +74,17 @@ class LayoutManager {
       this.submenuPlaceholder.appendChild(this.layoutDropdown);
     }
 
-    this.layoutDropdown.style.position = 'fixed';
-    this.layoutDropdown.style.zIndex = '9999';
+    this.layoutDropdown.style.position = "fixed";
+    this.layoutDropdown.style.zIndex = "9999";
 
     // Calculate horizontal position (prefer right side of trigger)
     let left = triggerRect.right + triggerMargin.right + gap - dropdownMargin.left;
-    
+
     // Check if dropdown would overflow right edge
     if (left + dropdownRect.width + dropdownMargin.right > viewportWidth - viewportMargin) {
       // Try left side of trigger
       left = triggerRect.left - triggerMargin.left - gap - dropdownRect.width - dropdownMargin.right;
-      
+
       // If still overflows, align to right edge of viewport
       if (left < viewportMargin) {
         left = viewportWidth - dropdownRect.width - dropdownMargin.right - viewportMargin;
@@ -87,12 +93,12 @@ class LayoutManager {
 
     // Calculate vertical position (align with trigger top)
     let top = triggerRect.top - triggerMargin.top - dropdownMargin.top;
-    
+
     // Check if dropdown would overflow bottom edge
     if (top + dropdownRect.height + dropdownMargin.bottom > viewportHeight - viewportMargin) {
       // Align to bottom of trigger
       top = triggerRect.bottom + triggerMargin.bottom - dropdownRect.height + dropdownMargin.top;
-      
+
       // If still overflows, align to bottom of viewport
       if (top < viewportMargin) {
         top = viewportHeight - dropdownRect.height - dropdownMargin.bottom - viewportMargin;
@@ -115,13 +121,13 @@ class LayoutManager {
     if (!this.layoutToggle || !this.layoutDropdown || !this.layoutList) return;
 
     this.originalParent = this.layoutDropdown.parentElement;
-    this.submenuPlaceholder = document.querySelector('[data-submenu-item]');
+    this.submenuPlaceholder = document.querySelector("[data-submenu-item]");
 
     if (this.submenuPlaceholder) {
       this.resizeHandler = () => this.positionSubmenu();
       this.scrollHandler = () => this.positionSubmenu();
-      window.addEventListener('resize', this.resizeHandler);
-      window.addEventListener('scroll', this.scrollHandler, true);
+      window.addEventListener("resize", this.resizeHandler);
+      window.addEventListener("scroll", this.scrollHandler, true);
     }
 
     this.renderLayoutList(this.layoutList);
@@ -130,14 +136,14 @@ class LayoutManager {
       if (this.layoutDropdown.classList.contains("show")) {
         this.layoutDropdown.classList.remove("show");
         this.layoutToggle.classList.remove("active");
-        
+
         if (this.submenuPlaceholder && this.layoutDropdown.parentElement === this.submenuPlaceholder) {
           this.originalParent.appendChild(this.layoutDropdown);
         }
       } else {
         this.layoutDropdown.classList.add("show");
         this.layoutToggle.classList.add("active");
-        
+
         if (this.submenuPlaceholder) {
           this.positionSubmenu();
         }
@@ -148,7 +154,7 @@ class LayoutManager {
       if (e.target !== this.layoutToggle && !this.layoutDropdown.contains(e.target)) {
         this.layoutDropdown.classList.remove("show");
         this.layoutToggle.classList.remove("active");
-        
+
         if (this.submenuPlaceholder && this.layoutDropdown.parentElement === this.submenuPlaceholder) {
           this.originalParent.appendChild(this.layoutDropdown);
         }
@@ -182,20 +188,23 @@ class LayoutManager {
       option.appendChild(desc);
 
       option.addEventListener("click", () => {
-        this.applyLayout(layout.id);
-        this.layoutDropdown.classList.remove("show");
-        this.layoutToggle.classList.remove("active");
-        
-        if (this.submenuPlaceholder && this.layoutDropdown.parentElement === this.submenuPlaceholder) {
-          this.originalParent.appendChild(this.layoutDropdown);
-        }
-        
-        this.clearAllScript();
-        setTimeout(() => this.reloadApp(), 1000);
+        this.reloadNextLayout(layout.id);
       });
 
       container.appendChild(option);
     });
+  }
+
+  reloadNextLayout(layoutId) {
+    this.applyLayout(layoutId);
+    this.layoutDropdown && this.layoutDropdown.classList.remove("show"), this.layoutToggle && this.layoutToggle.classList.remove("active");
+
+    if (this.submenuPlaceholder && this.layoutDropdown && this.layoutDropdown.parentElement === this.submenuPlaceholder) {
+      this.originalParent.appendChild(this.layoutDropdown);
+    }
+
+    this.clearAllScript();
+    setTimeout(() => this.reloadApp(), 1000);
   }
 
   updateUI() {
@@ -296,11 +305,11 @@ class LayoutManager {
 
   cleanup() {
     if (this.resizeHandler) {
-      window.removeEventListener('resize', this.resizeHandler);
+      window.removeEventListener("resize", this.resizeHandler);
       this.resizeHandler = null;
     }
     if (this.scrollHandler) {
-      window.removeEventListener('scroll', this.scrollHandler, true);
+      window.removeEventListener("scroll", this.scrollHandler, true);
       this.scrollHandler = null;
     }
 
