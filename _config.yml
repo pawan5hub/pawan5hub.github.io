@@ -308,7 +308,7 @@ defaults:
       path: "blogs"
       type: "pages"
     values:
-      permalink: /:path
+      permalink: /:path/
       layout: blog-layout
   - scope:
       path: "blogs/layouts/nexa.html"
