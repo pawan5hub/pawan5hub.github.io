@@ -80,7 +80,8 @@ function generateTokens() {
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
-    fs.writeFileSync(path.join(dataDir, 'og_tokens.json'), '{}');
+    // Changed: og_tokens.json → og-tokens.json
+    fs.writeFileSync(path.join(dataDir, 'og-tokens.json'), '{}');
     return;
   }
   
@@ -112,13 +113,15 @@ function generateTokens() {
     fs.mkdirSync(dataDir, { recursive: true });
   }
   
+  // Changed: og_tokens.json → og-tokens.json
   fs.writeFileSync(
-    path.join(dataDir, 'og_tokens.json'),
+    path.join(dataDir, 'og-tokens.json'),
     JSON.stringify(tokensMap, null, 2)
   );
   
   console.log(`\n✅ Generated ${Object.keys(tokensMap).length} tokens`);
-  console.log(`💾 Saved to: data/og_tokens.json\n`);
+  // Fixed: Corrected the message to show _data/og-tokens.json
+  console.log(`💾 Saved to: _data/og-tokens.json\n`);
   if (Object.keys(tokensMap).length > 0) {
     console.log('📋 Token mapping example:');
     const firstKey = Object.keys(tokensMap)[0];
