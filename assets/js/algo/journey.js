@@ -1,8 +1,5 @@
 import { HideComponent } from "../hide-component.js";
 import { onComponentLoaded } from "../paginator.js";
-//import { Observable } from "../observable.js";
-
-//const onExperienceLoadCompleted = new Observable();
 
 class Journey extends HideComponent {
   constructor() {
@@ -61,7 +58,6 @@ class Journey extends HideComponent {
     onComponentLoaded.next({
       id: "experience",
       onPageChange: (page) => {
-        console.log("Experience slide:", page);
       }
     });
     this.manageDOM();

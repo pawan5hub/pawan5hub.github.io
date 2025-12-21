@@ -1,4 +1,5 @@
-class LayoutManager {
+import { handleURLEvent } from "./handle-url.js";
+class Layouts {
   constructor() {
     this.layouts = [];
     this.currentLayout = localStorage.getItem("layout") || "nexa";
@@ -12,21 +13,37 @@ class LayoutManager {
     this.originalParent = null;
     this.resizeHandler = null;
     this.scrollHandler = null;
+    this.unsubscribe = null;
   }
 
   async init() {
     await this.loadLayouts();
     this.applyLayout(this.currentLayout);
     this.setupUI();
-    // This only fires when localStorage is changed in ANOTHER tab/window
     window.addEventListener("storage", (event) => {
-      if (event.key === "layout") {
-        this.reloadNextLayout(event.newValue);
-      }
+      this.handleLayoutChange(event);
+    });
+    this.unsubscribe = handleURLEvent.subscribe((event) => {
+      this.handleLayoutChange(event);
     });
   }
 
+  handleLayoutChange(event) {
+    if (event.key === "layout" && event.newValue && event.newValue !== this.currentLayout) {
+      if (this.layouts.find((l) => l.id === event.newValue)) {
+        this.reloadNextLayout(event.newValue);
+      } else if (event.oldValue && this.layouts.find((l) => l.id === event.oldValue)) {
+        this.applyLayout(event.oldValue);
+      } else {
+        this.loadLayouts();
+        this.applyLayout(this.currentLayout);
+        this.setupUI();
+      }
+    }
+  }
+
   async loadLayouts() {
+    if (this.layouts && this.layouts.length > 0) return;
     const data = await window.App.modules.apiClient.loadJSON("/data/layouts.json");
     if (data && data.layouts) {
       this.layouts = data.layouts;
@@ -37,7 +54,7 @@ class LayoutManager {
     document.body.setAttribute("data-layout", layoutId);
     this.currentLayout = layoutId;
     localStorage.setItem("layout", layoutId);
-    this.updateUI();
+    requestAnimationFrame(() => this.updateUI());
   }
 
   positionSubmenu() {
@@ -45,8 +62,6 @@ class LayoutManager {
 
     const triggerRect = this.layoutToggle.getBoundingClientRect();
     const dropdownRect = this.layoutDropdown.getBoundingClientRect();
-
-    // Get computed styles for margins
     const triggerStyle = window.getComputedStyle(this.layoutToggle);
     const dropdownStyle = window.getComputedStyle(this.layoutDropdown);
 
@@ -68,44 +83,26 @@ class LayoutManager {
     const viewportHeight = window.innerHeight;
     const gap = 8;
     const viewportMargin = 16;
-
-    // Move to placeholder if not already there
     if (this.layoutDropdown.parentElement !== this.submenuPlaceholder) {
       this.submenuPlaceholder.appendChild(this.layoutDropdown);
     }
 
     this.layoutDropdown.style.position = "fixed";
     this.layoutDropdown.style.zIndex = "9999";
-
-    // Calculate horizontal position (prefer right side of trigger)
     let left = triggerRect.right + triggerMargin.right + gap - dropdownMargin.left;
-
-    // Check if dropdown would overflow right edge
     if (left + dropdownRect.width + dropdownMargin.right > viewportWidth - viewportMargin) {
-      // Try left side of trigger
       left = triggerRect.left - triggerMargin.left - gap - dropdownRect.width - dropdownMargin.right;
-
-      // If still overflows, align to right edge of viewport
       if (left < viewportMargin) {
         left = viewportWidth - dropdownRect.width - dropdownMargin.right - viewportMargin;
       }
     }
-
-    // Calculate vertical position (align with trigger top)
     let top = triggerRect.top - triggerMargin.top - dropdownMargin.top;
-
-    // Check if dropdown would overflow bottom edge
     if (top + dropdownRect.height + dropdownMargin.bottom > viewportHeight - viewportMargin) {
-      // Align to bottom of trigger
       top = triggerRect.bottom + triggerMargin.bottom - dropdownRect.height + dropdownMargin.top;
-
-      // If still overflows, align to bottom of viewport
       if (top < viewportMargin) {
         top = viewportHeight - dropdownRect.height - dropdownMargin.bottom - viewportMargin;
       }
     }
-
-    // Ensure minimum margins
     left = Math.max(viewportMargin, Math.min(left, viewportWidth - dropdownRect.width - dropdownMargin.right - viewportMargin));
     top = Math.max(viewportMargin, Math.min(top, viewportHeight - dropdownRect.height - dropdownMargin.bottom - viewportMargin));
 
@@ -195,7 +192,7 @@ class LayoutManager {
     });
   }
 
-  reloadNextLayout(layoutId) {
+  reloadNextLayout(layoutId, reloadFull = false) {
     this.applyLayout(layoutId);
     this.layoutDropdown && this.layoutDropdown.classList.remove("show"), this.layoutToggle && this.layoutToggle.classList.remove("active");
 
@@ -219,12 +216,10 @@ class LayoutManager {
   }
 
   clearAllScript() {
-    // Clear module registry
     if (window.App && window.App.reset) {
       window.App.reset();
     }
     document.querySelectorAll('script[type="module"]').forEach((script) => script.remove());
-    // Clear service workers
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((reg) => reg.unregister());
@@ -330,7 +325,10 @@ class LayoutManager {
     if (this.layoutList) {
       this.layoutList.innerHTML = "";
     }
-
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
     this.layoutToggle = null;
     this.layoutDropdown = null;
     this.layoutList = null;
@@ -343,7 +341,7 @@ function initLayouts(options = {}) {
   if (window.App?.modules?.layout) {
     window.App.modules.layout.cleanup?.();
   }
-  const layoutModule = new LayoutManager(options);
+  const layoutModule = new Layouts(options);
   window.App.register("layout", layoutModule, "initLayouts");
   layoutModule.init();
 }
@@ -353,4 +351,4 @@ if (document.readyState === "loading") {
 } else {
   initLayouts();
 }
-export { LayoutManager, initLayouts };
+export { Layouts, initLayouts };

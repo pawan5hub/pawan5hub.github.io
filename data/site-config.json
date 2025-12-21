@@ -23,8 +23,32 @@
     "buttons": [
       {
         "text": "Get in Touch !!",
-        "url": "#contacts",
-        "style": "primary"
+        "url": "/#contact",
+        "style": "primary",
+        "icon": "&#xf27a;"
+      },
+      {
+        "text": "Share My Portfolio",
+        "rel": "portfolio",
+        "style": "light",
+        "icon": "&#xe535;"
+      },
+      {
+        "text": "Download Resume",
+        "rel": "resume",
+        "style": "secondary",
+        "icon": "&#xf019;",
+        "child": [
+          {
+            "text": "PDF",
+            "icon": "&#xf1c1;",
+            "default": true
+          },
+          {
+            "text": "DOCX",
+            "icon": "&#xf1c2;"
+          }
+        ]
       }
     ]
   },

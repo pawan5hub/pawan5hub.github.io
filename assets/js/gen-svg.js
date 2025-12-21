@@ -1,5 +1,5 @@
 import { HideComponent } from "./hide-component.js";
-class GenerateSvg extends HideComponent {
+class GenSvg extends HideComponent {
   constructor(superOptions = {}) {
     super(superOptions);
     this.options = {
@@ -543,7 +543,6 @@ ${gradientDef}${depthFilterDef}${backgroundElement}${textElements}</svg>`;
   }
 
   cleanup() {
-    // Reset options to default
     this.options = {
       fontSize: 25,
       fontFamily: "Arial, sans-serif",
@@ -588,7 +587,7 @@ function initGenSvg() {
   if (window.App?.modules?.genSvg) {
     window.App.modules.genSvg.cleanup?.();
   }
-  const svgModule = new GenerateSvg();
+  const svgModule = new GenSvg();
   window.App.register("genSvg", svgModule, 'initGenSvg');
 }
 
@@ -598,4 +597,4 @@ if (document.readyState === "loading") {
   initGenSvg();
 }
 
-export { GenerateSvg, initGenSvg };
+export { GenSvg, initGenSvg };

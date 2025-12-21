@@ -1,4 +1,3 @@
-// service-worker.js
 if (typeof activeRequests === 'undefined') {
   var activeRequests = new Map();
 }
@@ -8,8 +7,6 @@ self.addEventListener("fetch", (event) => {
   const id = Math.random().toString(36).slice(2);
   
   activeRequests.set(id, url);
-  
-  // Notify clients
   self.clients.matchAll().then(clients => {
     clients.forEach(client => {
       client.postMessage({

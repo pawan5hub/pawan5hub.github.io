@@ -3,18 +3,15 @@
   gap: var(--gap-3xl);
   align-items: center;
 }
-
 .about-text {
   flex: 6;
   padding: var(--padding-sm);
 }
-
 .about-text h2 {
   color: var(--textPrimary, #e6e6e6);
   font-size: var(--fontSize-3xl);
   margin-bottom: var(--margin-lg);
 }
-
 .about-paragraph {
   margin-bottom: var(--margin-lg);
   color: var(--textSecondary, #888888);
@@ -30,19 +27,16 @@
   flex: 4;
   position: relative;
 }
-
 .about-image img {
   width: 100%;
   filter: grayscale(100%);
 }
-
 .about-paragraph:nth-child(even) {
   padding-left: 15%;
 }
 .about-paragraph:nth-child(odd) {
   padding-right: 15%;
 }
-
 .about-rect {
   right: calc(-1 * var(--gap-3xl));
   top: 10%;

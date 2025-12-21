@@ -122,8 +122,6 @@ class Blog {
 
       const prevBtn = document.getElementById("prev-post");
       const nextBtn = document.getElementById("next-post");
-
-      // Reset buttons
       if (prevBtn) {
         prevBtn.style.display = "none";
         prevBtn.onclick = null;
@@ -132,8 +130,6 @@ class Blog {
         nextBtn.style.display = "none";
         nextBtn.onclick = null;
       }
-
-      // Setup PREVIOUS button
       if (currentIndex > 0) {
         const prevPost = categoryBlogs[currentIndex - 1];
         if (prevBtn) {
@@ -145,8 +141,6 @@ class Blog {
           };
         }
       }
-
-      // Setup NEXT button
       if (currentIndex < categoryBlogs.length - 1) {
         const nextPost = categoryBlogs[currentIndex + 1];
         if (nextBtn) {

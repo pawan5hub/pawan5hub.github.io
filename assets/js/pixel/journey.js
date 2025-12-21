@@ -23,8 +23,6 @@ class Journey {
 
   createExperienceItem(exp) {
     const item = window.App.modules.util.createElement("div", "experience-item");
-
-    // Header
     const headerContainer = window.App.modules.util.createElement("div", "experience-header-container");
     const header = window.App.modules.util.createElement("div", "experience-header");
     const title = window.App.modules.util.createElement("h4", "experience-title", exp.position);
@@ -33,8 +31,6 @@ class Journey {
     header.appendChild(title);
     header.appendChild(company);
     headerContainer.appendChild(header);
-
-    // Meta
     const meta = window.App.modules.util.createElement("div", "experience-meta");
     const period = window.App.modules.util.createElement("span", "experience-period", exp.period);
     const location = window.App.modules.util.createElement("span", "experience-location", exp.location);
@@ -43,16 +39,12 @@ class Journey {
     meta.appendChild(location);
     headerContainer.appendChild(meta);
     item.appendChild(headerContainer);
-
-    // Achievements
     const description = window.App.modules.util.createElement("ul", "experience-description");
     exp.achievements.forEach((achievement) => {
       const li = window.App.modules.util.createElement("li", "experience-description-list", achievement);
       description.appendChild(li);
     });
     item.appendChild(description);
-
-    // Technologies
     if (exp.technologies && exp.technologies.length > 0) {
       const tech = window.App.modules.util.createElement("div", "experience-tech");
       exp.technologies.forEach((t) => {

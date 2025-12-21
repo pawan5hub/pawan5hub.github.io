@@ -4,7 +4,6 @@
   position: relative;
   z-index: var(--z-base);
 }
-
 .about-content [data-about] {
   background: linear-gradient(135deg, var(--card-bg-start), var(--card-bg-mid), var(--card-bg-end));
   border-radius: var(--radius-xl);
@@ -17,7 +16,6 @@
   overflow: hidden;
   animation: fadeInUp var(--animation-base) ease-out backwards;
 }
-
 .about-content [data-about]::before {
   content: "";
   position: absolute;
@@ -32,7 +30,6 @@
   transition: transform var(--transition-base);
   z-index: var(--z-overlay);
 }
-
 .about-content [data-about]::after {
   content: "︎\f0eb";
   font-family: 'fa';
@@ -49,22 +46,18 @@
   background-clip: text;
   transition: background var(--transition-base, 0.3s ease-in-out);
 }
-
 .about-content [data-about]:hover {
   transform: translateY(var(--translate-y-hover));
   box-shadow: var(--shadow-lg) var(--shadow-primary-subtle);
   border-color: var(--primary);
 }
-
 .about-content [data-about]:hover::before {
   transform: scaleX(1);
 }
-
 .about-content [data-about]:hover::after {
   opacity: var(--opacity-decorative-hover, 0.25);
   transform: rotate(var(--rotate-medium)) scale(var(--scale-hover-medium));
 }
-
 .about-title {
   font-size: var(--fontSize-3xl);
   font-weight: 700;
@@ -81,14 +74,12 @@
   animation: slideInLeft var(--animation-base) ease-out backwards;
   animation-delay: 0.2s;
 }
-
 .about-content [data-about]:hover .about-title {
   background: linear-gradient(90deg, var(--accent), var(--primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
 .about-title::after {
   content: "";
   position: absolute;
@@ -102,7 +93,6 @@
   animation-delay: 0.4s;
   animation-fill-mode: backwards;
 }
-
 .about-text {
   display: flex;
   flex-direction: column;
@@ -110,7 +100,6 @@
   position: relative;
   z-index: var(--z-base);
 }
-
 .about-text::before {
   content: "";
   position: absolute;
@@ -123,11 +112,9 @@
   pointer-events: none;
   z-index: 0;
 }
-
 .about-content [data-about]:hover .about-text::before {
   left: 100%;
 }
-
 .about-paragraph {
   font-size: var(--fontSize-base, 1rem);
   line-height: var(--line-height-relaxed);
@@ -139,7 +126,6 @@
   animation: slideInRight var(--transition-slow) ease-out forwards;
   transition: transform var(--transition-fast), padding-left var(--transition-fast);
 }
-
 .about-paragraph:nth-child(1) {
   animation-delay: 0.3s;
 }
@@ -149,7 +135,6 @@
 .about-paragraph:nth-child(3) {
   animation-delay: 0.5s;
 }
-
 .about-paragraph::before {
   content: "";
   position: absolute;
@@ -161,32 +146,26 @@
   border-radius: var(--radius-sm);
   transition: height var(--transition-fast), background var(--transition-fast);
 }
-
 .about-paragraph:hover {
   padding-left: calc(var(--padding-lg) + var(--space-2));
 }
-
 .about-paragraph:hover::before {
   height: 100%;
   top: 0;
   background: linear-gradient(180deg, var(--primary), var(--accent));
 }
-
 .about-paragraph:first-child {
   font-size: var(--fontSize-lg);
   color: var(--textSecondary);
   font-weight: 500;
 }
-
 .about-paragraph:first-child::before {
   background: linear-gradient(180deg, var(--primary), var(--accent), transparent);
   width: var(--gradient-bar-lg);
 }
-
 .about-paragraph:first-child:hover::before {
   background: linear-gradient(180deg, var(--accent), var(--primary));
 }
-
 .about-paragraph strong,
 .about-paragraph b {
   color: var(--primary);

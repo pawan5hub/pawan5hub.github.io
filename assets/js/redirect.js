@@ -137,26 +137,17 @@ class Redirect {
   }
 
   cleanup() {
-    // Mark as inactive to prevent further operations
     this.isActive = false;
-
-    // Abort any ongoing fetch requests
     if (this.abortController) {
       this.abortController.abort();
       this.abortController = null;
     }
-
-    // Clear all timeouts
     this.timeoutIds.forEach(id => clearTimeout(id));
     this.timeoutIds = [];
-
-    // Remove any event listeners that were added
     this.eventListeners.forEach(({ element, event, handler }) => {
       element.removeEventListener(event, handler);
     });
     this.eventListeners = [];
-
-    console.log("Redirect module cleaned up");
   }
 }
 

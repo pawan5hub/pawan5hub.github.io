@@ -1,16 +1,12 @@
-/* Kudos Section - Achievements */
-
 #achievements-content {
   width: 100%;
   margin: 0 auto;
 }
-
 .achievements-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--gap-xl, 2rem);
 }
-
 .achievement-item {
   background: linear-gradient(135deg, var(--card-bg-start), var(--card-bg-mid), var(--card-bg-end));
   border-radius: var(--radius-xl, 0.75rem);
@@ -24,7 +20,6 @@
   position: relative;
   overflow: hidden;
 }
-
 .achievement-item::before {
   content: "";
   position: absolute;
@@ -36,17 +31,14 @@
   transform: scaleX(0);
   transition: transform var(--transition-base, 0.3s ease-in-out);
 }
-
 .achievement-item:hover {
   transform: translateY(-4px) scale(1.01);
   box-shadow: var(--shadow-lg) var(--shadow-primary-subtle);
   border-color: var(--primary, #00ffcc);
 }
-
 .achievement-item:hover::before {
   transform: scaleX(1);
 }
-
 .achievement-icon {
   width: 100%;
   font-size: var(--fontSize-4xl, 3.052rem);
@@ -64,13 +56,11 @@
   border: var(--border-1, 0.0625rem) solid var(--borderSecondary, #505050);
   transition: transform var(--transition-base, 0.3s ease-in-out), background var(--transition-base, 0.3s ease-in-out);
 }
-
 .achievement-item:hover .achievement-icon {
    transform: scale(var(--scale-hover-medium, 1.1)) rotate(var(--rotate-large, 360deg));
   border-color: var(--primary, #00ffcc);
   box-shadow: var(--shadow-sm) var(--shadow-primary-subtle);
 }
-
 .achievement-title {
  font-size: var(--fontSize-xl, 1.563rem);
   font-weight: 600;
@@ -88,7 +78,6 @@
   transition: background var(--transition-base, 0.3s ease-in-out);
   position: relative;
 }
-
 .achievement-item:hover .achievement-title {
   background: linear-gradient(
     90deg,
@@ -99,7 +88,6 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
 .achievement-description {
   font-size: var(--fontSize-base, 1rem);
   line-height: var(--line-height-relaxed, 1.6);
@@ -107,11 +95,9 @@
   margin: 0;
   transition: color var(--transition-base, 0.3s ease-in-out);
 }
-
 .achievement-item:hover .achievement-description {
   color: var(--textPrimary, #e6e6e6);
 }
-
 .zoom {
   animation: zoomIn var(--transition-slow, 0.5s ease-in-out);
 }

@@ -3,19 +3,16 @@
   grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
   gap: var(--gap-lg);
 }
-
 .achievement-item {
   padding: var(--padding-xl);
   text-align: center;
   border: var(--border-2) solid var(--border);
   transition: var(--transition-base);
 }
-
 .achievement-item:hover {
   border-color: var(--primary);
   transform: translateY(calc(-1 * var(--space-1))) !important;
 }
-
 .achievement-icon {
   width: 100%;
   font-size: var(--fontSize-4xl);
@@ -24,27 +21,22 @@
   display: block;
   animation: float 3s ease-in-out infinite;
 }
-
 .kudos-rect-1 {
   left: calc(-1 * var(--space-6));
   top: 33%;
 }
-
 .kudos-rect-2 {
   left: 30%;
   top: 40%;
 }
-
 .kudos-rect-3 {
   left: 60%;
   top: 70%;
 }
-
 .kudos-rect-4 {
   right: var(--space-1);
   top: 54%;
 }
-
 @keyframes float {
   0%,
   100% {
@@ -54,13 +46,11 @@
     transform: translateY(calc(-1 * var(--space-2)));
   }
 }
-
 .achievement-title {
   font-size: var(--fontSize-lg);
   margin-bottom: var(--margin-sm);
   color: var(--textPrimary, #e6e6e6);
 }
-
 .achievement-description {
   color: var(--textSecondary);
   font-size: var(--fontSize-md);

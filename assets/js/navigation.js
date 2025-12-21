@@ -19,8 +19,6 @@ class Navigation {
     this.setupHashNavigation();
     this.setupUniverseNavigation();
     this.updateSiteInfo();
-
-    // Handle initial hash on page load
     this.handleInitialHash();
   }
 
@@ -85,8 +83,6 @@ class Navigation {
         const a = window.App.modules.util.createElement("a", "section-nav-link", section.replace(/-/g, " "));
         a.href = `#${section}`;
         a.setAttribute("data-section", section);
-
-        // ADD: Close mobile sidebar on click
         a.addEventListener("click", () => {
           this.closeMobileSidebars();
         });
@@ -104,7 +100,6 @@ class Navigation {
 
     this.observer = new IntersectionObserver(
       (entries) => {
-        // Skip updates if we're manually navigating or in universe view
         if (this.isNavigating || !this.universeVisible) return;
 
         entries.forEach((entry) => {
@@ -148,86 +143,62 @@ class Navigation {
 
   updateActiveSection(sectionId, navLinks, sectionNavLinks) {
     this.currentSection = sectionId;
-
-    // Update URL hash without triggering scroll
     if (window.location.pathname === "/" || window.location.pathname.endsWith("/index.html")) {
       history.replaceState(null, null, `#${sectionId}`);
     }
-
-    // Update main nav links
     navLinks.forEach((link) => {
       link.classList.toggle("active", link.getAttribute("data-section") === sectionId);
     });
-
-    // Update section nav links
     sectionNavLinks.forEach((link) => {
       link.classList.toggle("active", link.getAttribute("data-section") === sectionId);
     });
   }
 
   updateActiveNavForUniverseSection(sectionId) {
-    // Manually update nav links for universe sections
     const navLinks = document.querySelectorAll(".nav-link[data-section]");
     const sectionNavLinks = document.querySelectorAll(".section-nav-link[data-section]");
 
     this.currentSection = sectionId;
-
-    // Update main nav links
     navLinks.forEach((link) => {
       link.classList.toggle("active", link.getAttribute("data-section") === sectionId);
     });
-
-    // Update section nav links
     sectionNavLinks.forEach((link) => {
       link.classList.toggle("active", link.getAttribute("data-section") === sectionId);
     });
   }
 
   setupSmoothScroll() {
-    // Handle all hash links with manual navigation
     document.addEventListener("click", (e) => {
       const anchor = e.target.closest('a[href^="#"], a[href^="/#"]');
       if (!anchor) return;
 
       const href = anchor.getAttribute("href");
       if (!href || href === "#") return;
-
-      // Extract hash from href
       const hash = href.startsWith("/#") ? href.substring(2) : href.substring(1);
       const targetSection = document.getElementById(hash);
 
       if (targetSection) {
         e.preventDefault();
         this.navigateToSection(hash);
-
-        // Close mobile sidebars - UPDATED
         this.closeMobileSidebars();
-
-        // Close mobile menu if open (legacy support)
         document.querySelector("[data-nav]")?.classList.remove("active");
       }
     });
   }
 
   setupHashNavigation() {
-    // Listen for hash changes (back/forward buttons)
     window.addEventListener("hashchange", (e) => {
       e.preventDefault();
       const hash = window.location.hash.substring(1);
       if (hash) {
         this.navigateToSection(hash);
       } else {
-        // No hash means return to universe main view
         if (!this.universeVisible) {
           this.returnToUniverse();
         }
       }
-
-      // Close mobile sidebars on hash change
       this.closeMobileSidebars();
     });
-
-    // Prevent default hash behavior
     window.addEventListener("click", (e) => {
       const anchor = e.target.closest('a[href^="#"]');
       if (anchor && anchor.getAttribute("href") !== "#") {
@@ -237,10 +208,8 @@ class Navigation {
   }
 
   handleInitialHash() {
-    // Handle hash present on page load
     const hash = window.location.hash.substring(1);
     if (hash) {
-      // Small delay to ensure page is fully loaded
       setTimeout(() => {
         this.navigateToSection(hash, false);
       }, 100);
@@ -249,20 +218,15 @@ class Navigation {
 
   setupUniverseNavigation() {
     this.universeTrack = document.querySelector("[data-universe-track]");
-
-    // Service card clicks are handled by Universe module
-    // Just setup back buttons here for initially rendered sections
     this.setupUniverseBackButtons();
   }
 
   setupUniverseBackButtons() {
-    // Setup back buttons for any pre-rendered universe sections
     document.querySelectorAll("[data-return-to-universe]").forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.returnToUniverse();
-        // Close mobile sidebars when returning to universe
         this.closeMobileSidebars();
       });
     });
@@ -282,7 +246,6 @@ class Navigation {
   }
 
   showUniverseSection(sectionId) {
-    // Hide the main universe view
     const mainSection = document.querySelector("section[data-service-card]");
     if (mainSection) {
       mainSection.style.opacity = "0";
@@ -290,60 +253,37 @@ class Navigation {
       mainSection.style.overflow = "hidden";
       mainSection.style.zIndex = "-1";
     }
-
-    // Shift the universe track
     if (this.universeTrack) {
       this.universeTrack.classList.add("universe-track-shifted");
     }
-
-    // Show the target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection && targetSection.classList.contains("universe-section")) {
-      // Hide all universe sections first
       document.querySelectorAll(".universe-section").forEach((section) => {
         section.classList.remove("active");
       });
-
-      // Show target section
       targetSection.classList.add("active");
       this.universeVisible = false;
       this.currentSection = sectionId;
-
-      // Update active navigation
       this.updateActiveNavForUniverseSection(sectionId);
-
-      // Update URL
       history.pushState(null, null, `#${sectionId}`);
-
-      // Setup back buttons for this section
       this.setupSectionBackButtons(targetSection);
-
-      // Close mobile sidebars
       this.closeMobileSidebars();
-
-      // Scroll to top with smooth behavior
       setTimeout(() => {
         const universeEl = document.querySelector("[data-universe]");
         window.scrollTo({ top: universeEl?.offsetTop || 0, behavior: "smooth" });
       }, 50);
-
-      // Adjust track height
       requestAnimationFrame(() => {
         if (this.universeTrack) {
           this.universeTrack.style.height = `${targetSection.offsetHeight}px`;
         }
       });
-
-      // Emit navigation event
       onNavigation.next({ section: sectionId, type: "universe" });
     }
   }
 
   setupSectionBackButtons(section) {
-    // Setup back buttons for the active universe section
     const backButtons = section.querySelectorAll("[data-return-to-universe]");
     backButtons.forEach((btn) => {
-      // Remove existing listeners by cloning
       const newBtn = btn.cloneNode(true);
       btn.parentNode?.replaceChild(newBtn, btn);
 
@@ -357,7 +297,6 @@ class Navigation {
   }
 
   returnToUniverse() {
-    // Show the main universe view
     const mainSection = document.querySelector("section[data-service-card]");
     if (mainSection) {
       mainSection.style.opacity = "1";
@@ -366,58 +305,39 @@ class Navigation {
       mainSection.style.position = "relative";
       mainSection.style.zIndex = "1";
     }
-
-    // Reset universe track
     if (this.universeTrack) {
       this.universeTrack.classList.remove("universe-track-shifted");
       this.universeTrack.style.removeProperty("height");
     }
-
-    // Hide all universe sections
     document.querySelectorAll(".universe-section").forEach((section) => {
       section.classList.remove("active");
     });
 
     this.universeVisible = true;
     this.currentSection = null;
-
-    // Clear active navigation
     document.querySelectorAll(".nav-link[data-section]").forEach((link) => {
       link.classList.remove("active");
     });
     document.querySelectorAll(".section-nav-link[data-section]").forEach((link) => {
       link.classList.remove("active");
     });
-
-    // Update URL - use replaceState to avoid adding to history
     history.replaceState(null, null, window.location.pathname);
-
-    // Close mobile sidebars
     this.closeMobileSidebars();
-
-    // Scroll to top
     const universeEl = document.querySelector("[data-universe]");
     window.scrollTo({ top: universeEl?.offsetTop || 0, behavior: "smooth" });
-
-    // Emit navigation event
     onNavigation.next({ section: null, type: "universe-main" });
   }
 
   navigateToSection(sectionId, animate = true) {
     const targetSection = document.getElementById(sectionId);
     if (!targetSection) return;
-
-    // Check if this is a universe section (hidden section)
     const isUniverseSection = targetSection.classList.contains("universe-section");
 
     if (isUniverseSection) {
-      // Show the universe section
       this.showUniverseSection(sectionId);
     } else {
-      // Check if we need to return to universe first
       if (!this.universeVisible) {
         this.returnToUniverse();
-        // Wait for transition then navigate
         setTimeout(() => {
           this.performRegularNavigation(sectionId, animate);
         }, 300);
@@ -425,24 +345,16 @@ class Navigation {
         this.performRegularNavigation(sectionId, animate);
       }
     }
-
-    // Close mobile sidebars after navigation
     this.closeMobileSidebars();
   }
 
   performRegularNavigation(sectionId, animate = true) {
     const targetSection = document.getElementById(sectionId);
     if (!targetSection) return;
-
-    // Set navigating flag to prevent scroll spy updates
     this.isNavigating = true;
-
-    // Update hash in URL
     if (window.location.hash !== `#${sectionId}`) {
       history.pushState(null, null, `#${sectionId}`);
     }
-
-    // Scroll to section
     if (animate) {
       targetSection.scrollIntoView({
         behavior: "smooth",
@@ -454,16 +366,12 @@ class Navigation {
         block: "start",
       });
     }
-
-    // Reset navigating flag after scroll completes
     setTimeout(
       () => {
         this.isNavigating = false;
       },
       animate ? 1000 : 100
     );
-
-    // Emit navigation event
     onNavigation.next({ section: sectionId, type: "regular" });
   }
 
@@ -471,14 +379,10 @@ class Navigation {
     if (this.observer) {
       this.observer.disconnect();
     }
-
-    // Clean up universe track
     if (this.universeTrack) {
       this.universeTrack.classList.remove("universe-track-shifted");
       this.universeTrack.style.removeProperty("height");
     }
-
-    // Close mobile sidebars on cleanup
     this.closeMobileSidebars();
 
     const navList = document.querySelector("[data-nav-items]");

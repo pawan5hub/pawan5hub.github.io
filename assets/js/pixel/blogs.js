@@ -1,6 +1,6 @@
-import { GenerateSvg } from "../gen-svg.js";
+import { GenSvg } from "../gen-svg.js";
 import { onComponentLoaded } from "../paginator.js";
-class Blogs extends GenerateSvg {
+class Blogs extends GenSvg {
   constructor() {
     super();
     this.allBlogs = [];
@@ -34,8 +34,6 @@ class Blogs extends GenerateSvg {
         slug: blog.slug,
         categorySlug: blog.categorySlug,
       }));
-
-      // Sort by date (newest first)
       this.allBlogs.sort((a, b) => b.dateObj - a.dateObj);
 
       this.filteredBlogs = [...this.allBlogs];
@@ -49,16 +47,12 @@ class Blogs extends GenerateSvg {
   setupFilters() {
     const filterContainer = document.querySelector("[data-blog-filter]");
     if (!filterContainer) return;
-
-    // Search input
     const searchWrapper = window.App.modules.util.createElement("div", "blog-search-wrapper");
     const searchInput = window.App.modules.util.createElement("input");
     searchInput.type = "text";
     searchInput.placeholder = "Search blogs...";
     searchInput.className = "blog-search-input";
     searchWrapper.appendChild(searchInput);
-
-    // Category filter
     const categoryWrapper = window.App.modules.util.createElement("div", "blog-category-wrapper");
     const categorySelect = window.App.modules.util.createElement("select", "blog-category-select");
 
@@ -73,8 +67,6 @@ class Blogs extends GenerateSvg {
       categorySelect.appendChild(option);
     });
     categoryWrapper.appendChild(categorySelect);
-
-    // Sort dropdown
     const sortWrapper = window.App.modules.util.createElement("div", "blog-sort-wrapper");
     const sortSelect = window.App.modules.util.createElement("select", "blog-sort-select");
     const sortOptions = [
@@ -94,8 +86,6 @@ class Blogs extends GenerateSvg {
     filterContainer.appendChild(searchWrapper);
     filterContainer.appendChild(categoryWrapper);
     filterContainer.appendChild(sortWrapper);
-
-    // Event listeners
     searchInput.addEventListener("input", (e) => this.handleSearch(e.target.value));
     categorySelect.addEventListener("change", (e) => this.handleCategoryFilter(e.target.value));
     sortSelect.addEventListener("change", (e) => this.handleSort(e.target.value));
@@ -175,11 +165,7 @@ class Blogs extends GenerateSvg {
 
   createBlogCard(blog, index) {
     const card = window.App.modules.util.createElement("article", `blog-card ${index % 3 === 0 ? "fade-left" : index % 3 === 2 ? "fade-right" : "zoom"}`);
-
-    // Image
     let imageContainer = window.App.modules.util.createElement("div", "blog-image");
-
-    // Use SVG generator if available
     if (this.displayMultiTextSVG) {
       this.displayMultiTextSVG(blog?.tags.slice(0, 6) || ["No Image"], imageContainer).then((img) => {
         imageContainer = img;
@@ -190,7 +176,6 @@ class Blogs extends GenerateSvg {
         imageContainer.appendChild(shades);
       });
     } else {
-      // Fallback if SVG generator is not available
       const categoryBadge = window.App.modules.util.createElement("div", "blog-category-badge", blog.category);
       imageContainer.appendChild(categoryBadge);
     }
@@ -214,16 +199,10 @@ class Blogs extends GenerateSvg {
     meta.appendChild(date);
     meta.appendChild(readTime);
     info.appendChild(meta);
-
-    // Title
     const title = window.App.modules.util.createElement("h3", "blog-title", blog.title);
     info.appendChild(title);
-
-    // Excerpt
     const excerpt = window.App.modules.util.createElement("p", "blog-excerpt", blog.excerpt);
     info.appendChild(excerpt);
-
-    // Tags
     if (blog.tags && blog.tags.length > 0) {
       const tagsContainer = window.App.modules.util.createElement("div", "blog-tags");
       blog.tags.slice(0, 3).forEach((tag) => {
@@ -232,8 +211,6 @@ class Blogs extends GenerateSvg {
       });
       info.appendChild(tagsContainer);
     }
-
-    // Footer
     const footer = window.App.modules.util.createElement("div", "blog-footer");
 
     const author = window.App.modules.util.createElement("div", "blog-author");
