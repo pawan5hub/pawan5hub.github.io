@@ -6,6 +6,7 @@ class Universe {
     this.filteredItems = [];
     this.backButtonListeners = [];
     this.currentSection = null;
+    this.subscription = null;
   }
 
   async init() {
@@ -14,18 +15,12 @@ class Universe {
   }
 
   setupNavigationListener() {
-    onNavigation.subscribe({
+    this.subscription = onNavigation.subscribe({
       next: (data) => {
         if (!data) return;
-
-        // Handle navigation events from Navigation module
         if (data.type === "universe" && data.section) {
-          // Navigation module already handled the universe section display
-          // We just need to update our internal state
           this.currentSection = data.section;
-          //this.navigateToSection({url: data.section});
         } else if (data.type === "universe-main") {
-          // Returned to main universe view
           this.currentSection = null;
         }
       },
@@ -125,11 +120,9 @@ class Universe {
   }
 
   returnToUniverse() {
-    // Use Navigation module's method if available
     if (window.App?.modules?.nav) {
       window.App.modules.nav.returnToUniverse();
     } else {
-      // Fallback to direct return
       this.fallbackReturn();
     }
   }
@@ -158,11 +151,7 @@ class Universe {
 
     this.currentSection = null;
     this.removeBackButtonListeners();
-
-    // Update URL
     history.replaceState(null, null, window.location.pathname);
-
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -174,6 +163,10 @@ class Universe {
   }
 
   cleanup() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
+    }
     this.listeners.forEach(({ target, event, handler }) => {
       target.removeEventListener(event, handler);
     });

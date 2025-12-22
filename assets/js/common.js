@@ -69,31 +69,9 @@ class CommonUtilities {
     }
   }
 
-  // setupMobileMenu() {
-  //   this.mobileMenuToggle = document.querySelector("[mobile-menu-toggle]");
-  //   this.siteNav = document.querySelector("[data-nav]");
-
-  //   if (!this.mobileMenuToggle || !this.siteNav) return;
-
-  //   this.mobileMenuClickHandler = () => {
-  //     this.siteNav.classList.toggle("active");
-  //   };
-
-  //   this.documentClickHandler = (e) => {
-  //     if (!this.mobileMenuToggle.contains(e.target) && !this.siteNav.contains(e.target)) {
-  //       this.siteNav.classList.remove("active");
-  //     }
-  //   };
-
-  //   this.mobileMenuToggle.addEventListener("click", this.mobileMenuClickHandler);
-  //   document.addEventListener("click", this.documentClickHandler);
-  // }
-
   setupMobileMenu() {
     this.mobileMenuToggle = document.querySelector("[mobile-menu-toggle]");
     this.siteNav = document.querySelector("[data-nav]");
-
-    // Check if mobile menu toggle doesn't exist, create mobile sidebar controls
     if (!this.mobileMenuToggle) {
       this.createMobileSidebarControls();
       return;
@@ -197,7 +175,6 @@ class CommonUtilities {
 
   initScrollReveal() {
     const revealElements = document.querySelectorAll(".reveal");
-    console.log("Total reveal elements found:", revealElements.length);
     if (revealElements.length === 0) return;
     let lastScrollTop = 0;
     const isMobile = window.innerWidth <= 768;
@@ -215,17 +192,14 @@ class CommonUtilities {
           rootBounds: entry.rootBounds,
         });
         if (entry.isIntersecting) {
-          console.log("✅ SHOWING element");
           entry.target.classList.add("visible");
         } else {
-          console.log("❌ HIDING element");
           entry.target.classList.remove("visible");
         }
       });
     };
     this.scrollRevealObserver = new IntersectionObserver(observerCallback, config);
     revealElements.forEach((element, index) => {
-      console.log(`Observing element ${index}:`, element);
       this.scrollRevealObserver.observe(element);
     });
     if (revealElements[0]) {

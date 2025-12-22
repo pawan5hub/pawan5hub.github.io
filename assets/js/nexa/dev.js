@@ -19,32 +19,38 @@ class Dev extends HideComponent {
   async renderProjects() {
     const config = await window.App.modules.apiClient.loadJSON("/data/site-config.json");
     const gitHub = `${config?.gitApi}/users/${config?.gitUser}/repos?sort=updated&per_page=100`;
-    let response = await window.App.modules.apiClient.loadJSON(gitHub);
+    await window.App.modules.apiClient
+      .loadJSON(gitHub)
+      .then((response) => {
+        if (!response) return;
+        response = response.filter((r) => !config.filter.some((f) => r.name.includes(f)));
+        this.allRepos = response.map((repo) => ({
+          id: repo.id,
+          name: repo.name,
+          description: repo.description || "No description available",
+          homepage: repo.homepage,
+          language: repo.language,
+          stargazers_count: repo.stargazers_count,
+          forks_count: repo.forks_count,
+          updated_at: repo.updated_at,
+          created_at: repo.created_at,
+          fork: repo.fork,
+          topics: repo.topics || [],
+          thumbnail: `${config.gitThumb}${config.gitUser}/${repo.name}`,
+          links: [
+            { url: repo.homepage, label: "Live Demo <~>" },
+            { url: repo.html_url, label: "GitHub Repo >=" },
+          ],
+        }));
 
-    if (!response) return;
-
-    response = response.filter((r) => !config.filter.some((f) => r.name.includes(f)));
-    this.allRepos = response.map((repo) => ({
-      id: repo.id,
-      name: repo.name,
-      description: repo.description || "No description available",
-      homepage: repo.homepage,
-      language: repo.language,
-      stargazers_count: repo.stargazers_count,
-      forks_count: repo.forks_count,
-      updated_at: repo.updated_at,
-      created_at: repo.created_at,
-      fork: repo.fork,
-      topics: repo.topics || [],
-      thumbnail: `${config.gitThumb}${config.gitUser}/${repo.name}`,
-      links: [
-        { url: repo.homepage, label: "Live Demo <~>" },
-        { url: repo.html_url, label: "GitHub Repo >=" },
-      ],
-    }));
-
-    this.filteredRepos = [...this.allRepos];
-    this.renderPage();
+        this.filteredRepos = [...this.allRepos];
+      })
+      .catch((error) => {
+        console.error("Error loading projects:", error);
+      })
+      .finally(() => {
+        this.renderPage();
+      });
   }
 
   setupFilters() {
@@ -126,6 +132,7 @@ class Dev extends HideComponent {
       const noResults = window.App.modules.util.createElement("p", "no-results", "No projects found");
       projectsContainer.appendChild(noResults);
       this.renderPagination();
+      this.manageDOM();
       return;
     }
 
@@ -207,7 +214,7 @@ function initDev() {
     window.App.modules.project.cleanup?.();
   }
   const projectModule = new Dev();
-  window.App.register("project", projectModule, 'initDev');
+  window.App.register("project", projectModule, "initDev");
   projectModule.init();
 }
 

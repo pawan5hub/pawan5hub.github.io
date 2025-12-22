@@ -16,8 +16,6 @@ class LoaderManager {
       console.warn("⚠︎ Loader element not found:", this.loaderSelector);
       return;
     }
-
-    // Only show loader if page is still loading
     if (document.readyState === "loading") {
       this.show();
       const loadHandler = () => {
@@ -71,8 +69,6 @@ class LoaderManager {
 
     window.fetch = function (...args) {
       const url = args[0];
-
-      // Skip if it's from loadJSON (already tracked via APIClient)
       if (typeof url === "string" && window.APP_BASEURL && url.includes(window.APP_BASEURL)) {
         return self.originalFetch.apply(this, args);
       }
@@ -97,8 +93,6 @@ class LoaderManager {
 
   interceptImages() {
     const self = this;
-
-    // ONLY track dynamically added images
     const originalSetAttribute = HTMLImageElement.prototype.setAttribute;
     HTMLImageElement.prototype.setAttribute = function (name, value) {
       if (name === "src" && value && !self.trackedResources.has(value)) {
@@ -131,8 +125,6 @@ class LoaderManager {
 
   interceptCSS() {
     const self = this;
-
-    // ONLY track dynamically added stylesheets
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
@@ -173,8 +165,6 @@ class LoaderManager {
 
   interceptScripts() {
     const self = this;
-
-    // ONLY track dynamically added scripts
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
@@ -221,16 +211,11 @@ class LoaderManager {
   }
 
   cleanup() {
-    // Restore original fetch
     if (this.originalFetch) {
       window.fetch = this.originalFetch;
     }
-
-    // Disconnect all observers
     this.mutationObservers.forEach((observer) => observer.disconnect());
     this.mutationObservers = [];
-
-    // Reset state
     this.reset();
     this.loader = null;
   }

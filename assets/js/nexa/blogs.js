@@ -1,6 +1,6 @@
-import { GenerateSvg } from "../gen-svg.js";
+import { GenSvg } from "../gen-svg.js";
 import { onComponentLoaded } from "../paginator.js";
-class Blogs extends GenerateSvg {
+class Blogs extends GenSvg {
   constructor() {
     super({ currentPath: "/blogs" });
     this.allBlogs = [];

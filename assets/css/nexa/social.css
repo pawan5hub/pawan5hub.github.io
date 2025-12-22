@@ -9,13 +9,11 @@
   align-items: center;
   z-index: var(--z-fixed);
 }
-
 .social-container p {
   width: var(--space-1);
   height: 9.375rem;
   background: linear-gradient(to top, rgb(from var(--border, #2a2a2a) r g b / 0.1), var(--borderSecondary, #505050));
 }
-
 .icons {
   max-width: var(--space-15);
   padding: var(--space-1);
@@ -23,7 +21,6 @@
   flex-direction: column;
   gap: var(--gap-sm);
 }
-
 .contact-social {
   min-width: fit-content;
   text-decoration: none;
@@ -35,22 +32,18 @@
   border: var(--border-1) solid var(--primary, #00ffcc);
   font-size: var(--fontSize-lg);
 }
-
 .social-anim {
   opacity: 0;
   transform: translateY(var(--padding-xl));
 }
-
 .social-anim.visible {
   opacity: 1;
   transform: translateY(0);
   transition: var(--transition-slow);
 }
-
 .social-anim .zoom {
   transform: scale(0.1);
 }
-
 .social-anim.visible .zoom {
   transform: translateX(0) translateY(0) scale(1);
   transition: var(--transition-slow);

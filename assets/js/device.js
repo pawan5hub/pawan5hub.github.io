@@ -192,8 +192,6 @@ class Device {
         dischargingTime: null,
       },
     };
-
-    console.log("Device cleaned up");
   }
 }
 

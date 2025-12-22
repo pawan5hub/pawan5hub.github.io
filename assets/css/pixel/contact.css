@@ -1,5 +1,3 @@
-/* Contact Section */
-
 .contact-content {
   width: 100%;
   margin: 0 auto;
@@ -12,7 +10,6 @@
 .contact-info:empty {
   display: none;
 }
-/* Contact Text Section */
 .contact-text {
   background: linear-gradient(135deg, var(--card-bg-start), var(--card-bg-mid), var(--card-bg-end));
   border-radius: var(--radius-xl, 0.75rem);
@@ -26,8 +23,6 @@
   transition: transform var(--transition-base, 0.3s ease-in-out), box-shadow var(--transition-base, 0.3s ease-in-out), border-color var(--transition-base, 0.3s ease-in-out);
   animation: fadeInUp 0.6s ease-out backwards;
 }
-
-/* Top gradient border animation */
 .contact-text::before {
   content: "";
   position: absolute;
@@ -42,8 +37,6 @@
   transition: transform var(--transition-base, 0.3s ease-in-out);
   z-index: 3;
 }
-
-/* Decorative watermark */
 .contact-text::after {
   content: "📧︎";
   font-family: 'fa';
@@ -62,22 +55,18 @@
     transition: background var(--transition-base, 0.3s 
 ease-in-out);
 }
-
 .contact-text:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg) var(--shadow-primary-subtle);
   border-color: var(--primary, #00ffcc);
 }
-
 .contact-text:hover::before {
   transform: scaleX(1);
 }
-
 .contact-text:hover::after {
   opacity: var(--opacity-decorative-hover, 0.25);
   transform: translateY(-50%) rotate(10deg) scale(1.1);
 }
-
 .contacts-title{
   font-size: var(--fontSize-xl, 1.563rem);
   font-weight: 600;
@@ -95,7 +84,6 @@ ease-in-out);
   transition: background var(--transition-base, 0.3s ease-in-out);
   position: relative;
 }
-
 .contact-text:hover .contacts-title {
   background: linear-gradient(
     90deg,
@@ -106,15 +94,11 @@ ease-in-out);
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
-
-/* Contact Info Grid */
 .contact-info {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--gap-lg, 1.5rem);
 }
-
 .contact-item {
   background: linear-gradient(135deg, var(--card-bg-start, rgba(42, 54, 84, 0.6)), var(--card-bg-mid, rgba(30, 40, 60, 0.7)), var(--card-bg-end, rgba(26, 31, 58, 0.8)));
   border-radius: var(--radius-xl, 0.75rem);
@@ -129,7 +113,6 @@ ease-in-out);
   position: relative;
   overflow: hidden;
 }
-
 .contact-item::before {
   content: "";
   position: absolute;
@@ -141,17 +124,14 @@ ease-in-out);
   transform: scaleY(0);
   transition: transform var(--transition-base, 0.3s ease-in-out);
 }
-
 .contact-item:hover {
   transform: translateX(8px);
   box-shadow: var(--shadow-lg) var(--shadow-primary-subtle);
   border-color: var(--primary, #00ffcc);
 }
-
 .contact-item:hover::before {
   transform: scaleY(1);
 }
-
 .contact-item .icon {
   font-size: var(--fontSize-2xl, 1.953rem);
   font-style: normal;
@@ -167,14 +147,12 @@ ease-in-out);
   flex-shrink: 0;
   transition: transform var(--transition-base, 0.3s ease-in-out), background var(--transition-base, 0.3s ease-in-out), box-shadow var(--transition-base, 0.3s ease-in-out);
 }
-
 .contact-item:hover .icon {
   transform: scale(1.1) rotate(5deg);
   background: var(--primary, #00ffcc);
   color: var(--background, #1a1a1a);
   box-shadow: var(--shadow-lg) var(--shadow-primary-subtle);
 }
-
 .contact-value {
   font-size: var(--fontSize-base, 1rem);
   line-height: var(--line-height-normal, 1.5);
@@ -183,14 +161,12 @@ ease-in-out);
   word-break: break-word;
   transition: color var(--transition-base, 0.3s ease-in-out);
 }
-
 .contact-item a.contact-value {
   color: var(--link, #e0e0e0);
   text-decoration: none;
   position: relative;
   max-width: max-content;
 }
-
 .contact-item a.contact-value::after {
   content: "";
   position: absolute;
@@ -201,11 +177,9 @@ ease-in-out);
   background: var(--primary, #00ffcc);
   transition: width var(--transition-base, 0.3s ease-in-out);
 }
-
 .contact-item:hover a.contact-value {
   color: var(--primary, #00ffcc);
 }
-
 .contact-item:hover a.contact-value::after {
   width: 100%;
 }

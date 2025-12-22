@@ -2,8 +2,8 @@ import { Observable } from "./observable.js";
 const onComponentLoaded = new Observable();
 class Paginator {
   constructor() {
-    // Store all paginator instances by ID
     this.instances = new Map();
+    this.subscription = null;
   }
   
   create(config) {
@@ -13,13 +13,9 @@ class Paginator {
     }
 
     const id = config.id;
-
-    // Cleanup existing instance with same id
     if (this.instances.has(id)) {
       this.cleanupInstance(id);
     }
-
-    // Initialize instance data
     const instance = {
       type: config.type || 'slider',
       id: id,
@@ -57,19 +53,13 @@ class Paginator {
       },
       paginationContainers: []
     };
-
-    // Store instance
     this.instances.set(id, instance);
-
-    // Initialize
     return this.initInstance(id);
   }
 
   initInstance(id) {
     const instance = this.instances.get(id);
     if (!instance) return false;
-
-    // For server-side pagination
     if (instance.mode === 'server') {
       instance.totalPages = Math.ceil(instance.totalItems / instance.itemsPerPage);
       this.renderPaginationControls(id);
@@ -77,8 +67,6 @@ class Paginator {
       instance.onInit();
       return true;
     }
-
-    // Client-side pagination
     instance.container = document.querySelector(instance.containerSelector);
     if (!instance.container) {
       console.warn(`Container not found: ${instance.containerSelector}`);
@@ -137,8 +125,6 @@ class Paginator {
     instance.paginationContainers.forEach((paginationContainer) => {
       paginationContainer.innerHTML = "";
       if (instance.totalPages <= 1) return;
-      
-      // Previous Button
       const prevBtn = window.App.modules.util.createElement("button", `${instance.cssClasses.prevBtn} ${instance.currentPage === 1 ? instance.cssClasses.disabled : ""}`, "‹");
       prevBtn.setAttribute(`data-${id}-prev`, '');
       prevBtn.disabled = instance.currentPage === 1;
@@ -149,8 +135,6 @@ class Paginator {
       instance.handlers.prevBtns.push({ btn: prevBtn, handler: prevHandler });
       
       paginationContainer.appendChild(prevBtn);
-
-      // Page Indicators
       for (let i = 1; i <= instance.totalPages; i++) {
         const indicator = window.App.modules.util.createElement("button", `${instance.cssClasses.indicator} ${i === instance.currentPage ? instance.cssClasses.active : ""}`);
         indicator.setAttribute(`data-${id}-indi`, i);
@@ -162,14 +146,10 @@ class Paginator {
         
         paginationContainer.appendChild(indicator);
       }
-
-      // Page Info
       const pageInfo = window.App.modules.util.createElement("div", instance.cssClasses.pageInfo);
       pageInfo.setAttribute(`data-${id}-info`, '');
       pageInfo.innerHTML = `<span>${instance.currentPage}</span> / <span>${instance.totalPages}</span>`;
       paginationContainer.appendChild(pageInfo);
-
-      // Next Button
       const nextBtn = window.App.modules.util.createElement("button", `${instance.cssClasses.nextBtn} ${instance.currentPage === instance.totalPages ? instance.cssClasses.disabled : ""}`, "›");
       nextBtn.setAttribute(`data-${id}-next`, '');
       nextBtn.disabled = instance.currentPage === instance.totalPages;
@@ -396,20 +376,21 @@ class Paginator {
     }
 
     this.instances.delete(id);
-    console.log(`Paginator cleaned up: ${id}`);
   }
 
   cleanup() {
-    // Cleanup all instances
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
+    }
     this.instances.forEach((instance, id) => {
       this.cleanupInstance(id);
     });
     this.instances.clear();
-    console.log("All paginators cleaned up");
   }
 
   subscribeLoad() {
-    onComponentLoaded.subscribe({
+    this.subscription = onComponentLoaded.subscribe({
       next: (value) => {
         if (value.id) {
           this.create(value);

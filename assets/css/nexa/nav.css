@@ -7,14 +7,12 @@
   gap: var(--gap-xl);
   min-height: 4em;
 }
-
 .header-brand {
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
   margin-right: auto;
 }
-
 .brand-link {
   display: flex;
   align-items: center;
@@ -24,11 +22,9 @@
   font-size: var(--fontSize-lg);
   text-decoration: none;
 }
-
 .brand-symbol {
   color: var(--primary, #00ffcc);
 }
-
 .site-nav {
   flex: 1;
   max-width: fit-content;
@@ -37,11 +33,9 @@
 .nav-link-text {
   pointer-events: none;
 }
-
 .nav-link-icon {
   display: none !important;
 }
-
 nav {
   display: flex;
   justify-content: right;
@@ -49,14 +43,12 @@ nav {
   padding: var(--padding-lg) 0;
   border-bottom: var(--border-1) solid var(--border, #2a2a2a);
 }
-
 .nav-list {
   display: flex;
   gap: var(--gap-xl);
   list-style: none;
   font-size: var(--fontSize-base);
 }
-
 .nav-list a {
   color: var(--link, #e0e0e0);
   text-decoration: none;
@@ -67,7 +59,6 @@ nav {
   justify-content: center;
   transition: transform var(--transition-base), color var(--transition-base);
 }
-
 .nav-list a:hover,
 .nav-list a.active {
   color: var(--linkHover);

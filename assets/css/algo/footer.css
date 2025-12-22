@@ -3,32 +3,27 @@ footer {
   padding: var(--padding-lg);
   margin-top: var(--margin-2xl);
 }
-
 .footer-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .footer-text {
   font-size: var(--fontSize-sm);
   color: var(--textTertiary);
   max-width: 37.5rem;
   padding: var(--padding-xl) 0;
 }
-
 .footer-msg {
   text-align: center;
   font-size: var(--fontSize-sm, 0.8rem);
   color: var(--textSecondary, #888888);
 }
-
 .social-links {
   display: flex;
   gap: var(--gap-lg);
   margin-top: var(--margin-md);
 }
-
 .social-links a {
   color: var(--textPrimary, #e6e6e6);
   text-decoration: none;
@@ -40,7 +35,6 @@ footer {
   height: max-content;
   width: max-content;
 }
-
 .social-links a:hover {
   opacity: 0.7;
 }

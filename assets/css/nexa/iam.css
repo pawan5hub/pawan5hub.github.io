@@ -5,39 +5,31 @@
   padding: var(--padding-xl) 0;
   position: relative;
 }
-
 .hero-desc {
   max-width: 75%;
 }
-
 .hero-content h1 {
   font-size: var(--fontSize-4xl);
   margin-bottom: var(--margin-lg);
   line-height: var(--line-height-tight);
 }
-
 .hero-content .highlight {
   color: var(--primary, #00ffcc);
 }
-
 .hero-content p {
   color: var(--primary, #00ffcc);
   margin-bottom: var(--margin-xl);
   font-size: var(--fontSize-base);
   line-height: var(--line-height-normal);
 }
-
-
 .hero-image {
   position: relative;
 }
-
 .hero-image img {
   width: 25rem;
   height: auto;
   filter: grayscale(100%);
 }
-
 .status-badge {
   position: absolute;
   min-width: max-content;
@@ -53,36 +45,29 @@
   gap: var(--gap-sm);
   z-index: 2;
 }
-
 .badge-box {
   height: var(--space-5);
   width: var(--space-5);
   display: inline-block;
   background-color: var(--primary, #00ffcc);
 }
-
-/* Quote Section Styles */
 .grid {
   bottom: 20%;
   right: -5%;
   z-index: var(--z-base) !important;
 }
-
 .union {
   top: 30%;
   left: 5%;
 }
-
 .rect {
   right: calc(-1 * var(--padding-xl));
   top: var(--space-16);
 }
-
 .quotes {
   width: fit-content;
   border: var(--border-1) solid var(--primary, #00ffcc);
 }
-
 .quote-box {
   max-width: 75%;
   margin: 0 auto;
@@ -93,30 +78,25 @@
   justify-content: center;
   align-items: flex-end;
 }
-
 .quote-box legend {
   font-size: var(--fontSize-lg);
   color: var(--primary, #00ffcc);
   margin: 0 var(--margin-sm);
   padding: 0 var(--padding-sm);
 }
-
 .quote-box .quote-author legend {
   position: relative;
   right: calc(-1 * var(--space-11));
   background-color: var(--background, #1a1a1a);
 }
-
 .quote-box p {
   text-align: justify;
   width: fit-content;
   padding: var(--padding-sm);
 }
-
 .quote-text {
   font-size: var(--fontSize-lg);
 }
-
 .quote-author {
   color: var(--primary, #00ffcc);
   font-size: var(--fontSize-sm);

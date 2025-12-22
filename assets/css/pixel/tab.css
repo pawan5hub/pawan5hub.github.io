@@ -1,14 +1,11 @@
-/* Tabs */
 .tabs-wrapper {
   background: transparent;
 }
-
 .tabs {
   display: flex;
   overflow-x: overlay;
   padding-bottom: var(--padding-sm, 0.5rem);
 }
-
 .tab {
   flex: 1;
   padding: var(--padding-md, 1rem) var(--padding-md, 1rem);
@@ -22,14 +19,12 @@
   font-size: var(--fontSize-lg);
   font-weight: 500;
 }
-
 .tab.active {
   background: linear-gradient(90deg, var(--accent, #ff00ff), var(--primary, #00ffcc));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
-
 .tab::after {
     content: "";
     position: absolute;
@@ -41,7 +36,6 @@
     background: linear-gradient(90deg, var(--primary, #151b23) 0%, var(--accent, #1eeb1e) 100%);
     transition: width var(--transition-base), transform var(--transition-base);
 }
-
 .tab.active::after {
   transform: translateX(-50%);
   width: 80%;

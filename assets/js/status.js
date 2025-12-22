@@ -6,18 +6,12 @@ class Status extends Device {
     this.activeDropdown = null;
     this.networkContainer = document.querySelector("[data-status-network]");
     this.batteryContainer = document.querySelector("[data-status-battery]");
-
-    // Store event handlers for cleanup
     this.eventHandlers = {
       networkClick: null,
       batteryClick: null,
       documentClick: null,
     };
-
-    // Store interval ID for cleanup
     this.updateInterval = null;
-
-    // Submenu placeholder handling
     this.submenuPlaceholder = null;
     this.networkOriginalParent = null;
     this.batteryOriginalParent = null;
@@ -49,8 +43,6 @@ class Status extends Device {
 
     const triggerRect = trigger.getBoundingClientRect();
     const submenuRect = submenu.getBoundingClientRect();
-
-    // Get computed styles for margins
     const triggerStyle = window.getComputedStyle(trigger);
     const submenuStyle = window.getComputedStyle(submenu);
 
@@ -72,44 +64,26 @@ class Status extends Device {
     const viewportHeight = window.innerHeight;
     const gap = 8;
     const viewportMargin = 16;
-
-    // Move to placeholder if not already there
     if (submenu.parentElement !== this.submenuPlaceholder) {
       this.submenuPlaceholder.appendChild(submenu);
     }
 
     submenu.style.position = "fixed";
     submenu.style.zIndex = "9999";
-
-    // Calculate horizontal position (prefer right side of trigger)
     let left = triggerRect.right + triggerMargin.right + gap - submenuMargin.left;
-
-    // Check if submenu would overflow right edge
     if (left + submenuRect.width + submenuMargin.right > viewportWidth - viewportMargin) {
-      // Try left side of trigger
       left = triggerRect.left - triggerMargin.left - gap - submenuRect.width - submenuMargin.right;
-
-      // If still overflows, align to right edge of viewport
       if (left < viewportMargin) {
         left = viewportWidth - submenuRect.width - submenuMargin.right - viewportMargin;
       }
     }
-
-    // Calculate vertical position (align with trigger top)
     let top = triggerRect.top - triggerMargin.top - submenuMargin.top;
-
-    // Check if submenu would overflow bottom edge
     if (top + submenuRect.height + submenuMargin.bottom > viewportHeight - viewportMargin) {
-      // Align to bottom of trigger
       top = triggerRect.bottom + triggerMargin.bottom - submenuRect.height + submenuMargin.top;
-
-      // If still overflows, align to bottom of viewport
       if (top < viewportMargin) {
         top = viewportHeight - submenuRect.height - submenuMargin.bottom - viewportMargin;
       }
     }
-
-    // Ensure minimum margins
     left = Math.max(viewportMargin, Math.min(left, viewportWidth - submenuRect.width - submenuMargin.right - viewportMargin));
     top = Math.max(viewportMargin, Math.min(top, viewportHeight - submenuRect.height - submenuMargin.bottom - viewportMargin));
 
@@ -174,38 +148,27 @@ class Status extends Device {
   }
 
   initEventListeners() {
-    // Network icon click handler
     this.eventHandlers.networkClick = (e) => {
       this.toggleDropdown("network");
     };
-
-    // Battery icon click handler
     this.eventHandlers.batteryClick = (e) => {
       this.toggleDropdown("battery");
     };
-
-    // Document click handler - close dropdowns when clicking outside
     this.eventHandlers.documentClick = (e) => {
-      // Check if click is outside both containers
       if (!this.networkContainer.contains(e.target) && !this.batteryContainer.contains(e.target) && !this.networkDropdown.contains(e.target) && !this.batteryDropdown.contains(e.target)) {
         this.closeAllDropdowns();
       }
     };
-
-    // Add event listeners
     this.networkContainer.addEventListener("click", this.eventHandlers.networkClick);
     this.batteryContainer.addEventListener("click", this.eventHandlers.batteryClick);
     document.addEventListener("click", this.eventHandlers.documentClick);
   }
 
   toggleDropdown(type) {
-    // If clicking the same dropdown, close it
     if (this.activeDropdown === type) {
       this.closeAllDropdowns();
       return;
     }
-
-    // Remove active state from both dropdowns
     if (this.networkDropdown) {
       this.networkDropdown.classList.remove("show");
       this.networkContainer.classList.remove("active");
@@ -220,11 +183,7 @@ class Status extends Device {
         this.batteryOriginalParent.appendChild(this.batteryDropdown);
       }
     }
-
-    // Set new active dropdown
     this.activeDropdown = type;
-
-    // Add active state to selected dropdown
     if (type === "network") {
       this.networkDropdown.classList.add("show");
       this.networkContainer.classList.add("active");
@@ -279,8 +238,6 @@ class Status extends Device {
         bar.style.opacity = "0.6";
       }
     });
-
-    // Add signal animation for active connection
     if (state.network.isOnline && activeBars > 0) {
       this.networkBars[activeBars - 1].classList.add("signal-active");
     } else {
@@ -297,8 +254,6 @@ class Status extends Device {
     const level = state.battery.level;
     const width = (level / 100) * 18;
     this.batteryFill.setAttribute("width", width);
-
-    // Color based on level
     let color = "var(--textPrimary)";
     if (state.battery.charging) {
       color = "var(--success, #b0b0b0)";
@@ -349,8 +304,6 @@ class Status extends Device {
 
     document.getElementById("batteryLevel").textContent = `${level}%`;
     document.getElementById("batteryChargingStatus").textContent = charging ? "⚡︎ Charging" : "🔌︎ Discharging";
-
-    // Time remaining
     let timeText = "--";
     if (charging && state.battery.chargingTime) {
       timeText = `${Math.round(state.battery.chargingTime / 60)} min to full`;
@@ -358,8 +311,6 @@ class Status extends Device {
       timeText = `${Math.round(state.battery.dischargingTime / 60)} min remaining`;
     }
     document.getElementById("batteryTime").textContent = timeText;
-
-    // Progress bar
     const progress = document.getElementById("batteryProgress");
     progress.style.width = `${level}%`;
 
@@ -368,8 +319,6 @@ class Status extends Device {
     else if (level < 20) progressColor = "var(--danger)";
     else if (level < 50) progressColor = "var(--warning)";
     progress.style.background = progressColor;
-
-    // Quality badge
     const qualityBadge = document.getElementById("batteryQuality");
     qualityBadge.textContent = quality;
     qualityBadge.className = `quality-badge quality-${quality}`;
@@ -394,8 +343,6 @@ class Status extends Device {
       rect.setAttribute("data-bar", i + 1);
       rect.setAttribute("width", "2");
       rect.setAttribute("rx", i < 3 ? "2" : "1");
-
-      // Different heights and positions for each bar
       const heights = [4, 6, 8, 10, 12];
       const yPositions = [8, 6, 4, 2, 0];
 
@@ -414,8 +361,6 @@ class Status extends Device {
     svg.setAttribute("width", "27");
     svg.setAttribute("height", "13");
     svg.setAttribute("viewBox", "0 0 27 13");
-
-    // Battery outline
     const outline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     outline.setAttribute("x", "0.5");
     outline.setAttribute("y", "0.5");
@@ -426,8 +371,6 @@ class Status extends Device {
     outline.setAttribute("stroke-opacity", "0.35");
     outline.setAttribute("fill", "none");
     svg.appendChild(outline);
-
-    // Battery terminal
     const terminal = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     terminal.setAttribute("x", "23");
     terminal.setAttribute("y", "3.5");
@@ -437,8 +380,6 @@ class Status extends Device {
     terminal.style.fill = "var(--textPrimary)";
     terminal.setAttribute("fill-opacity", "0.4");
     svg.appendChild(terminal);
-
-    // Battery fill
     const fill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     fill.classList.add("battery-fill");
     fill.setAttribute("x", "2");
@@ -493,7 +434,6 @@ class Status extends Device {
   }
 
   cleanup() {
-    // Clear update interval
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
@@ -507,11 +447,7 @@ class Status extends Device {
       window.removeEventListener("scroll", this.scrollHandler, true);
       this.scrollHandler = null;
     }
-
-    // Close all dropdowns
     this.closeAllDropdowns();
-
-    // Remove event listeners
     if (this.networkContainer && this.eventHandlers.networkClick) {
       this.networkContainer.removeEventListener("click", this.eventHandlers.networkClick);
     }
@@ -523,15 +459,11 @@ class Status extends Device {
     if (this.eventHandlers.documentClick) {
       document.removeEventListener("click", this.eventHandlers.documentClick);
     }
-
-    // Clear event handlers
     this.eventHandlers = {
       networkClick: null,
       batteryClick: null,
       documentClick: null,
     };
-
-    // Remove all generated DOM elements from containers
     if (this.networkContainer) {
       while (this.networkContainer.firstChild) {
         this.networkContainer.removeChild(this.networkContainer.firstChild);
@@ -543,8 +475,6 @@ class Status extends Device {
         this.batteryContainer.removeChild(this.batteryContainer.firstChild);
       }
     }
-
-    // Clear component references
     this.batteryFill = null;
     this.networkBars = null;
     this.networkDropdown = null;
@@ -555,11 +485,7 @@ class Status extends Device {
     this.submenuPlaceholder = null;
     this.networkOriginalParent = null;
     this.batteryOriginalParent = null;
-
-    // Call parent cleanup (Device class)
     super.cleanup();
-
-    console.log("Status cleaned up");
   }
 }
 
@@ -576,8 +502,6 @@ function initStatus() {
   statusModule.onUpdate((state) => {
     statusModule.update(state);
   });
-
-  // Store interval ID for cleanup
   statusModule.updateInterval = setInterval(() => {
     statusModule.update(statusModule.state);
   }, 30000);

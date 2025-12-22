@@ -137,8 +137,6 @@ class HideComponent {
   }
 
   cleanup() {
-    // HideComponent is primarily used as a base class
-    // Cleanup is handled by child classes
   }
 }
 
@@ -148,14 +146,7 @@ function initHideComponent(options = {}) {
   }
   const hideCompModule = new HideComponent(options);
   window.App.register("hideComp", hideCompModule, "initHideComponent");
-  // hideCompModule.manageDOM(options);
   return hideCompModule;
 }
-
-// if (document.readyState === "loading") {
-//   document.addEventListener("DOMContentLoaded", initHideComponent);
-// } else {
-//   initHideComponent();
-// }
 
 export { HideComponent, initHideComponent };
