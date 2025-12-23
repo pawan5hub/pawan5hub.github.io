@@ -508,3 +508,19 @@ body:not([data-reduced-motion="true"]) * {
 [data-theme="pearl"] .pearl-icon {
   display: inline !important;
 }
+@media (prefers-color-scheme: dark) {
+  [data-theme="pearl"][data-sys-theme="true"] #bmc-iframe,
+  [data-theme="lavender"] #bmc-iframe,
+  [data-theme="charcoal"] #bmc-iframe {
+    filter: invert(1) hue-rotate(268deg);
+    mix-blend-mode: screen;
+  }
+}
+@media (prefers-color-scheme: light) {
+  [data-theme="lavender"]:not([data-sys-theme="true"]) #bmc-iframe,
+  [data-theme="charcoal"]:not([data-sys-theme="true"]) #bmc-iframe {
+    filter: invert(1) hue-rotate(268deg);
+    mix-blend-mode: screen;
+  }
+}
+
