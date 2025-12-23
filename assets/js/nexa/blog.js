@@ -43,6 +43,7 @@ class Blog {
       const res = await window.App.modules.apiClient.loadJSON(page);
       if (res.ok) {
         const data = await res.json();
+        
         console.log(`${JSON.stringify(data)}`);
         return data.count;
       }
@@ -175,8 +176,6 @@ class Blog {
   async loadGiscus(data) {
     const container = document.querySelector("[data-giscus-content]");
     if (!container || !data) return;
-
-    //window.App.modules.loader.show();
     container.innerHTML = "";
 
     const theme = this.getThemeUrl(data["data-theme"]);
@@ -192,26 +191,14 @@ class Blog {
     script.async = data["script.async"] || true;
     const loadHandler = () => {
       setTimeout(() => {
-        //window.App.modules.loader.hide();
       }, 500);
     };
     const errorHandler = () => {
-      //window.App.modules.loader.hide();
       console.error("Failed to load Giscus");
     };
     script.addEventListener("load", loadHandler);
     script.addEventListener("error", errorHandler);
     this.eventListeners.push({ el: script, type: "load", handler: loadHandler }, { el: script, type: "error", handler: errorHandler });
-    setTimeout(() => {
-      setTimeout(() => {
-        try {
-          iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: "preferred_color_scheme" } } }, "https://giscus.app");
-        } catch (error) {
-          console.log("Cannot communicate with Giscus iframe (cross-origin)");
-        }
-      }, 1000);
-    }, 5000);
-
     container.appendChild(script);
   }
 
@@ -236,8 +223,6 @@ class Blog {
   async generateCoffee(data) {
     const container = document.querySelector("[data-support-content]");
     if (!container || !data) return;
-
-    //window.App.modules.loader.show();
     container.innerHTML = "";
 
     const introPara = window.App.modules.util.createElement("p", "modal-msg", data.msg);
@@ -281,14 +266,12 @@ class Blog {
 
   onIframeLoad(iframe) {
     setTimeout(() => {
-      //window.App.modules.loader.hide();
       Object.assign(iframe.style, { display: "block", opacity: "0", transition: "opacity 0.3s ease" });
       setTimeout(() => (iframe.style.opacity = "1"), 10);
     }, 300);
   }
 
   onIframeError(iframe) {
-    //window.App.modules.loader.hide();
   }
 
   escapeHtml(text) {
