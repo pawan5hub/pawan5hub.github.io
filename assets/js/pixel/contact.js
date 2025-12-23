@@ -69,8 +69,6 @@ class Contacts {
     
     const form = window.App.modules.util.createElement("form", "contact-form");
     form.id = "contact-form";
-    // REMOVED: form.method and form.action
-    // These are no longer needed since we're handling submission manually
     
     if (contactConfig.group && Array.isArray(contactConfig.group)) {
       contactConfig.group.forEach((field) => {
@@ -83,8 +81,6 @@ class Contacts {
         form.appendChild(fieldGroup);
       });
     }
-
-    // Create buttons from config
     const formActions = window.App.modules.util.createElement("div", "form-actions");
     if (contactConfig.buttons && Array.isArray(contactConfig.buttons)) {
       contactConfig.buttons.forEach((btn) => {
@@ -93,28 +89,18 @@ class Contacts {
       });
     }
     form.appendChild(formActions);
-
-    // Status message
     const status = window.App.modules.util.createElement("div", "form-status");
     status.id = "contact-form-status";
     form.appendChild(status);
-
-    // Append to wrapper
     wrapper.appendChild(header);
     wrapper.appendChild(form);
     formContainer.appendChild(wrapper);
-
-    // Add styles
     this.injectStyles();
-
-    // Setup form handler - now using button click instead of form submit
     this.setupFormHandler();
   }
 
   createFormGroup(field) {
     const group = window.App.modules.util.createElement("div", "form-group");
-
-    // Label
     const label = window.App.modules.util.createElement("label", "form-label");
     label.htmlFor = field.id;
 
@@ -125,27 +111,17 @@ class Contacts {
       const requiredSpan = window.App.modules.util.createElement("span", "label-required", "*");
       label.appendChild(requiredSpan);
     }
-
-    // Input wrapper
     const inputWrapper = window.App.modules.util.createElement("div", "input-wrapper");
-
-    // Icon
     const icon = window.App.modules.util.createElement("i", `input-icon ${field.class || ""}`);
     icon.innerHTML = field.icon || "";
-
-    // Input
     const input = window.App.modules.util.createElement("input", "form-input");
     input.type = field.type || "text";
     input.id = field.id;
     input.name = field.name;
     input.placeholder = field.placeholder || "";
     if (field.required) input.required = true;
-
-    // Set autocomplete
     if (field.type === "email") input.autocomplete = "email";
     if (field.name === "name") input.autocomplete = "name";
-
-    // Add validators if present
     if (field.validator && Array.isArray(field.validator)) {
       field.validator.forEach((rule) => {
         if (rule["min-length"]) input.minLength = rule["min-length"];
@@ -165,8 +141,6 @@ class Contacts {
 
   createTextareaGroup(field) {
     const group = window.App.modules.util.createElement("div", "form-group");
-
-    // Label
     const label = window.App.modules.util.createElement("label", "form-label");
     label.htmlFor = field.id;
 
@@ -177,23 +151,15 @@ class Contacts {
       const requiredSpan = window.App.modules.util.createElement("span", "label-required", "*");
       label.appendChild(requiredSpan);
     }
-
-    // Input wrapper
     const inputWrapper = window.App.modules.util.createElement("div", "input-wrapper");
-
-    // Icon
     const icon = window.App.modules.util.createElement("i", `input-icon textarea-icon ${field.class || ""}`);
     icon.innerHTML = field.icon || "";
-
-    // Textarea
     const textarea = window.App.modules.util.createElement("textarea", "form-input form-textarea");
     textarea.id = field.id;
     textarea.name = field.name;
     textarea.placeholder = field.placeholder || "";
     textarea.rows = field.rows || 5;
     if (field.required) textarea.required = true;
-
-    // Add validators if present
     if (field.validator && Array.isArray(field.validator)) {
       field.validator.forEach((rule) => {
         if (rule["min-length"]) textarea.minLength = rule["min-length"];
@@ -212,7 +178,6 @@ class Contacts {
 
   createButton(btn) {
     const button = window.App.modules.util.createElement("button", "btn-submit");
-    // CHANGED: Always set type to "button" to prevent form submission
     button.type = "button";
     button.id = btn.id || "contact-form-button";
 
@@ -232,11 +197,7 @@ class Contacts {
     this.formStatus = document.getElementById("contact-form-status");
 
     if (!this.form || !this.formButton) return;
-
-    // CHANGED: Listen to button click instead of form submit
     this.formButton.addEventListener("click", (event) => this.handleSubmit(event));
-    
-    // Optional: Still handle form submit if user presses Enter
     this.form.addEventListener("submit", (event) => {
       event.preventDefault();
       this.handleSubmit(event);
@@ -245,31 +206,19 @@ class Contacts {
 
   async handleSubmit(event) {
     event.preventDefault();
-
-    // Validate form before submitting
     if (!this.form.checkValidity()) {
-      // Show browser's built-in validation messages
       this.form.reportValidity();
       return;
     }
-
-    // Reset status
     this.formStatus.className = "form-status";
     this.formStatus.innerHTML = "";
-
-    // Get loading icon from config
-    const loadingIcon = "&#xf110;"; // spinner icon
-
-    // Disable button and show loading
-    this.formButton.disabled = true;
+    const loadingIcon = "&#xf110;";    this.formButton.disabled = true;
     this.formButton.classList.add("loading");
     this.formButton.querySelector(".btn-text").textContent = "Sending...";
     this.formButton.querySelector(".btn-icon").innerHTML = loadingIcon;
 
     try {
       const data = new FormData(this.form);
-      
-      // Get action URL from config
       const actionURL = this.config.contact.on;
       if (!actionURL) {
         throw new Error("Form action URL not configured");
@@ -310,7 +259,6 @@ class Contacts {
 
       this.showStatus("error", `<i class="status-icon ${errorMsg?.class || "fa"}">${icon}</i>${message}`);
     } finally {
-      // Reset button
       const submitBtn = this.config.contact.buttons?.find((b) => b.type === "submit");
       this.formButton.disabled = false;
       this.formButton.classList.remove("loading");
@@ -322,27 +270,19 @@ class Contacts {
   showStatus(type, message) {
     this.formStatus.className = `form-status ${type} show`;
     this.formStatus.innerHTML = message;
-
-    // Auto hide after 5 seconds
     setTimeout(() => {
       this.formStatus.classList.remove("show");
     }, 5000);
   }
-
-  // Optional: Add method to manually trigger form submission
   submit() {
     if (this.formButton) {
       this.formButton.click();
     }
   }
-
-  // Optional: Get form data without submitting
   getFormData() {
     if (!this.form) return null;
     return new FormData(this.form);
   }
-
-  // Optional: Validate form without submitting
   validate() {
     if (!this.form) return false;
     return this.form.checkValidity();
@@ -356,8 +296,6 @@ class Contacts {
     if (containerInfo) containerInfo.innerHTML = "";
     if (container) container.innerHTML = "";
     if (formContainer) formContainer.innerHTML = "";
-
-    // Remove styles
     const styles = document.getElementById("contact-form-styles");
     if (styles) styles.remove();
 
