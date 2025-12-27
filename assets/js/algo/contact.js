@@ -229,15 +229,11 @@ class Contacts extends HideComponent {
         throw new Error("Form action URL not configured");
       }
 
-      const response = await window.App.modules.apiClient.post(actionURL, {
-        method: "POST",
-        body: data,
-        headers: {
-          Accept: "application/json",
-        },
+      const response = await window.App.modules.apiClient.post(actionURL, data, {
+        Accept: "application/json",
       });
 
-      if (response.ok) {
+      if (response?.ok) {
         const successMsg = this.config.contact.messages?.find((m) => m.type === "success");
         const icon = successMsg?.icon || "&#xf164;";
         const message = successMsg?.message || "Thanks for your message! I'll get back to you soon.";
@@ -245,16 +241,14 @@ class Contacts extends HideComponent {
         this.showStatus("success", `<i class="status-icon ${successMsg?.class || "fa"}">${icon}</i>${message}`);
         this.form.reset();
       } else {
-        const errorData = await response.json();
-        const errorMsg = this.config.contact.messages?.find((m) => m.type === "error");
+       const errorMsg = this.config.contact.messages?.find((m) => m.type === "error");
         const icon = errorMsg?.icon || "&#xf5b4;";
         let message = errorMsg?.message || "Oops! There was a problem submitting your form";
-
-        if (errorData.errors) {
-          message = errorData.errors.map((error) => error.message).join(", ");
+        if (response.errors && Array.isArray(response.errors)) {
+          const errorList = response.errors.map((error) => `<strong>${error.field}</strong> ${error.message}`).join("<br>");
+          message = `<div class="error-title">${response.error || "Error"}:</div>${errorList}`;
         }
-
-        this.showStatus("error", `<i class="status-icon ${errorMsg?.class || "fa"}">${icon}</i>${message}`);
+        this.showStatus("error", `<i class="status-icon ${errorMsg?.class || "fa"}">${icon}</i><div class="error-message">${message}</div>`);
       }
     } catch (error) {
       console.error("Form submission error:", error);

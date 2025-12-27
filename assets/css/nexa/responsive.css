@@ -179,6 +179,19 @@
   .page-container {
     padding: var(--padding-xl);
   }
+   .minimized #toolbar-title {
+    font-size: 0;
+  }
+  .minimized #toolbar-title > i{
+    font-size: var(--fontSize-md);
+  }
+   #reading-toolbar {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    max-width: 100%;
+    width: 100%;
+  }
 }
 @media (max-width: 768px) and (orientation: portrait) {
   table {
@@ -513,6 +526,16 @@
   }
 }
 @media (max-width: 480px) and (orientation: portrait) {
+  #bmc-wbtn {
+    top: 6rem;
+    right: 1rem !important;
+  }
+  .minimized #toolbar-title {
+    font-size: 0;
+  }
+  .minimized #toolbar-title > i{
+    font-size: var(--fontSize-md);
+  }
   .hero-content h1 {
     font-size: var(--fontSize-xl);
   }
@@ -648,6 +671,16 @@
   }
 }
 @media (max-width: 480px) and (orientation: landscape) {
+  #bmc-wbtn {
+    top: 6rem;
+    right: 1rem !important;
+  }
+  .minimized #toolbar-title {
+    font-size: 0;
+  }
+  .minimized #toolbar-title > i{
+    font-size: var(--fontSize-md);
+  }
   .hero {
     flex-direction: row;
     min-height: auto;

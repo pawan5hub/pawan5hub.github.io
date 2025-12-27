@@ -8,9 +8,11 @@ class LoaderManager {
     this.checkInterval = null;
     this.performanceObserver = null;
     this.lastActivityTime = Date.now();
-    this.idleThreshold = 2000;    this.trackedIframes = new WeakSet();
+    this.idleThreshold = 2000;
+    this.trackedIframes = new WeakSet();
     this.iframeObserver = null;
-    this.userIdleThreshold = 30 * 60 * 1000;    this.userIdleCheckInterval = null;
+    this.userIdleThreshold = 30 * 60 * 1000;
+    this.userIdleCheckInterval = null;
     this.lastUserActivityTime = Date.now();
     this.isUserIdle = false;
   }
@@ -41,7 +43,7 @@ class LoaderManager {
     try {
       this.performanceObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        
+
         entries.forEach((entry) => {
           if (entry.entryType === "resource") {
             this.handleResourceTiming(entry);
@@ -52,8 +54,8 @@ class LoaderManager {
         });
       });
 
-      this.performanceObserver.observe({ 
-        entryTypes: ["resource", "navigation"] 
+      this.performanceObserver.observe({
+        entryTypes: ["resource", "navigation"],
       });
     } catch (error) {
       console.error("❌ Error setting up PerformanceObserver:", error);
@@ -61,9 +63,8 @@ class LoaderManager {
   }
 
   handleResourceTiming(entry) {
-    const isLoading = entry.responseEnd === 0 || 
-                     (entry.responseEnd - entry.fetchStart) > 0;
-    
+    const isLoading = entry.responseEnd === 0 || entry.responseEnd - entry.fetchStart > 0;
+
     if (isLoading) {
       this.updateActivity();
     }
@@ -156,7 +157,8 @@ class LoaderManager {
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
       } else {
-        this.updateActivity();      }
+        this.updateActivity();
+      }
     });
   }
 
@@ -168,13 +170,14 @@ class LoaderManager {
     this.idleCallbackId = requestIdleCallback(
       (deadline) => {
         const timeRemaining = deadline.timeRemaining();
-        
+
         if (timeRemaining > 0) {
           this.checkIdleState();
         }
         this.scheduleIdleCheck();
       },
-      { timeout: 1000 }    );
+      { timeout: 1000 }
+    );
   }
 
   setupLoadListeners() {
@@ -191,10 +194,7 @@ class LoaderManager {
     });
   }
   setupUserIdleDetection() {
-    const activityEvents = [
-      "mousedown", "mousemove", "keypress", "scroll", 
-      "touchstart", "click", "contextmenu", "wheel"
-    ];
+    const activityEvents = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click", "contextmenu", "wheel"];
 
     const resetUserIdle = () => {
       const wasIdle = this.isUserIdle;
@@ -219,13 +219,15 @@ class LoaderManager {
 
   checkUserIdleState() {
     const idleTime = Date.now() - this.lastUserActivityTime;
-    
+
     if (idleTime >= this.userIdleThreshold && !this.isUserIdle) {
       this.isUserIdle = true;
       const idleData = this.getIdleTimeInfo();
-      window.dispatchEvent(new CustomEvent("user:idle", {
-        detail: idleData
-      }));
+      window.dispatchEvent(
+        new CustomEvent("user:idle", {
+          detail: idleData,
+        })
+      );
     }
   }
   getIdleTimeInfo() {
@@ -237,13 +239,13 @@ class LoaderManager {
 
     let formatted = "";
     if (days > 0) {
-      formatted = `${days} day${days > 1 ? 's' : ''} ${hours % 24} hour${hours % 24 !== 1 ? 's' : ''}`;
+      formatted = `${days} day${days > 1 ? "s" : ""} ${hours % 24} hour${hours % 24 !== 1 ? "s" : ""}`;
     } else if (hours > 0) {
-      formatted = `${hours} hour${hours > 1 ? 's' : ''} ${minutes % 60} minute${minutes % 60 !== 1 ? 's' : ''}`;
+      formatted = `${hours} hour${hours > 1 ? "s" : ""} ${minutes % 60} minute${minutes % 60 !== 1 ? "s" : ""}`;
     } else if (minutes > 0) {
-      formatted = `${minutes} minute${minutes > 1 ? 's' : ''}`;
+      formatted = `${minutes} minute${minutes > 1 ? "s" : ""}`;
     } else {
-      formatted = `${seconds} second${seconds !== 1 ? 's' : ''}`;
+      formatted = `${seconds} second${seconds !== 1 ? "s" : ""}`;
     }
 
     return {
@@ -253,7 +255,7 @@ class LoaderManager {
       hours,
       days,
       formatted,
-      timestamp: this.lastUserActivityTime
+      timestamp: this.lastUserActivityTime,
     };
   }
   setUserIdleThreshold(ms) {
@@ -290,7 +292,8 @@ class LoaderManager {
 
     const resources = performance.getEntriesByType("resource");
     const recentResources = resources.filter((entry) => {
-      return entry.responseEnd === 0 ||             (Date.now() - entry.responseEnd < 100);    });
+      return entry.responseEnd === 0 || Date.now() - entry.responseEnd < 100;
+    });
 
     return recentResources.length > 0;
   }
@@ -320,7 +323,7 @@ class LoaderManager {
     if (this.activeRequests < 0) {
       this.activeRequests = 0;
     }
-    
+
     if (this.activeRequests === 0) {
       setTimeout(() => this.checkIdleState(), 100);
     }
@@ -348,9 +351,7 @@ class LoaderManager {
       domComplete: navigation.domComplete,
       dnsLookup: navigation.domainLookupEnd - navigation.domainLookupStart,
       tcpConnection: navigation.connectEnd - navigation.connectStart,
-      tlsNegotiation: navigation.secureConnectionStart > 0 
-        ? navigation.connectEnd - navigation.secureConnectionStart 
-        : 0,
+      tlsNegotiation: navigation.secureConnectionStart > 0 ? navigation.connectEnd - navigation.secureConnectionStart : 0,
       requestTime: navigation.responseStart - navigation.requestStart,
       responseTime: navigation.responseEnd - navigation.responseStart,
       fetchTime: navigation.responseEnd - navigation.fetchStart,
@@ -443,8 +444,7 @@ class APIClient {
         performance.mark(endMarkName);
         try {
           performance.measure(`fetch-${fullURL}`, markName, endMarkName);
-        } catch (e) {
-        }
+        } catch (e) {}
 
         this.cachedData.set(fullURL, data);
         return data;
@@ -497,42 +497,36 @@ class APIClient {
 
   async post(url, data, header = null) {
     const fullURL = url.includes("http") ? url : `${this.baseURL}${url}`;
-
     if (this.loaderManager) {
       this.loaderManager.increment();
     }
-
     try {
       const options = {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           ...(header || {}),
         },
-        body: JSON.stringify(data),
+        body: data,
       };
-
-      const response = await fetch(fullURL, options);
-
-      if (!response.ok) {
-        throw new Error(`POST failed ${fullURL}: ${response.status}`);
+      if (!(data instanceof FormData)) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(data);
       }
-
+      const response = await fetch(fullURL, options);
+      // if (!response.ok) {
+      //   throw new Error(`POST failed ${fullURL}: ${response.status}`);
+      // }
       const result = await response.json();
-
       if (this.loaderManager) {
         this.loaderManager.decrement();
       }
-
       return result;
     } catch (error) {
       console.error("❌ Error posting data:", error);
-
       if (this.loaderManager) {
         this.loaderManager.decrement();
       }
-
-      return null;
+      return {'error' : 'Response Error !!!'};
     }
   }
 
@@ -556,13 +550,13 @@ class IdlePopupManager {
     this.overlayId = options.overlayId || "idle-popup-overlay";
     this.messageSelector = options.messageSelector || "[data-idle-message]";
     this.closeButtonSelector = options.closeButtonSelector || "[data-idle-close]";
-    this.autoCreatePopup = options.autoCreatePopup !== false;    
+    this.autoCreatePopup = options.autoCreatePopup !== false;
     this.popup = null;
     this.overlay = null;
     this.messageElement = null;
     this.closeButton = null;
     this.isVisible = false;
-    
+
     this.loaderManager = null;
   }
 
@@ -671,8 +665,7 @@ class IdlePopupManager {
 
   handleUserIdle(idleData) {
     if (this.messageElement && idleData) {
-      this.messageElement.textContent = 
-        `You've been idle for ${idleData.formatted}. Click continue to keep working.`;
+      this.messageElement.textContent = `You've been idle for ${idleData.formatted}. Click continue to keep working.`;
     }
 
     this.show();
@@ -728,7 +721,7 @@ function initLoader(loaderSelector = "[data-app-loader]") {
   }
 
   const loaderModule = new LoaderManager(loaderSelector);
-  
+
   if (window.App?.modules?.apiClient) {
     window.App.modules.apiClient.cleanup?.();
   }
@@ -739,10 +732,11 @@ function initLoader(loaderSelector = "[data-app-loader]") {
   }
 
   const idlePopupManager = new IdlePopupManager({
-    autoCreatePopup: true  });
+    autoCreatePopup: true,
+  });
 
   window.App.register("loader", loaderModule);
-  window.App.register("apiClient", apiClient, 'initLoader');
+  window.App.register("apiClient", apiClient, "initLoader");
   window.App.register("idlePopup", idlePopupManager);
 
   loaderModule.init();
@@ -750,7 +744,7 @@ function initLoader(loaderSelector = "[data-app-loader]") {
   window.checkIdleState = () => loaderModule.getMetrics();
   window.checkUserIdle = () => ({
     isIdle: loaderModule.isUserCurrentlyIdle(),
-    idleTime: loaderManager.getCurrentIdleTime()
+    idleTime: loaderManager.getCurrentIdleTime(),
   });
 }
 

@@ -112,17 +112,19 @@
           "placeholder": "John Doe",
           "icon": "&#xf007;",
           "class": "fa",
-          "required": true
+          "required": true,
+          "validator": [{ "min-length": 3, "max-length": 50 }]
         },
         {
           "id": "contact-email",
           "name": "email",
-          "label": "Email Address",
+          "label": "Work Email Address",
           "type": "email",
           "placeholder": "john@example.com",
           "class": "fa",
           "icon": "&#x40;",
-          "required": true
+          "required": true,
+          "validator": [{ "min-length": 5, "max-length": 50 }]
         },
         {
           "id": "contact-subject",
@@ -131,7 +133,9 @@
           "type": "text",
           "placeholder": "Project Inquiry",
           "icon": "&#xf02b;",
-          "class": "fa"
+          "class": "fa",
+          "required": true,
+          "validator": [{ "min-length": 5, "max-length": 80 }]
         },
         {
           "id": "contact-message",
@@ -142,7 +146,7 @@
           "icon": "&#xf27a;",
           "class": "fa",
           "required": true,
-          "validator": [{ "min-length": 25, "max-length": "500" }]
+          "validator": [{ "min-length": 25, "max-length": 500 }]
         }
       ],
       "buttons": [

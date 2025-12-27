@@ -1,3 +1,5 @@
+import { PGlite } from "./@electric-sql/pglite/dist/index.js";
+
 export class Reader {
   constructor(articleId, options = {}) {
     this.articleId = articleId;
@@ -14,11 +16,23 @@ export class Reader {
       blue: "#81d4fa",
     };
     this.currentColor = "yellow";
+    this.isMobile = this.detectMobile();
+    this.isTouch = "ontouchstart" in window;
+    this.selectionMenu = null;
+    this.selectedRange = null;
+    this.longPressTimer = null;
+    this.longPressDuration = 500;
     this.features = {
+      pglite: true,
       indexedDB: this.checkIndexedDB(),
       localStorage: this.checkLocalStorage(),
       selection: typeof window.getSelection === "function",
     };
+    this.storagePreference = options.storagePreference || ["pglite", "indexedDB", "localStorage", "memory"];
+  }
+
+  detectMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
   }
 
   checkIndexedDB() {
@@ -41,53 +55,191 @@ export class Reader {
   }
 
   async loadReaders() {
-    if (this.features.indexedDB) {
-      try {
-        await this.initIndexedDB();
-        this.storageType = "indexedDB";
-      } catch (e) {
-        console.warn("IndexedDB failed, falling back to localStorage:", e);
-        this.initLocalStorage();
-      }
-    } else if (this.features.localStorage) {
-      this.initLocalStorage();
-    } else {
-      this.initMemoryStorage();
-      console.warn("⚠️ Using memory storage - data will be lost on page refresh");
-    }
-
+    await this.initStorage();
     await this.loadReadingState();
-
     if (this.features.selection) {
-      this.setupHighlighting();
-    } else {
-      console.warn("⚠️ Text selection not supported");
+      if (this.isMobile || this.isTouch) {
+        this.setupMobileHighlighting();
+      } else {
+        this.setupHighlighting();
+      }
     }
-
     this.setupReadingProgress();
     this.setupUI();
     this.startReadingTimer();
   }
 
+  async initStorage() {
+    for (const storage of this.storagePreference) {
+      try {
+        if (storage === "pglite" && this.features.pglite) {
+          await this.initPGlite();
+          this.storageType = "pglite";
+          console.log("✅ Using PGlite (PostgreSQL in browser!)");
+          return;
+        }
+        if (storage === "indexedDB" && this.features.indexedDB) {
+          await this.initIndexedDB();
+          this.storageType = "indexedDB";
+          console.log("✅ Using IndexedDB");
+          return;
+        }
+        if (storage === "localStorage" && this.features.localStorage) {
+          this.initLocalStorage();
+          this.storageType = "localStorage";
+          console.log("✅ Using localStorage");
+          return;
+        }
+      } catch (e) {
+        console.warn(`Failed to initialize ${storage}:`, e);
+      }
+    }
+    this.initMemoryStorage();
+    console.warn("⚠️ Using memory storage - data will be lost on refresh");
+  }
+
+  async initPGlite() {
+    try {
+      this.db = await PGlite.create({
+        dataDir: "idb://blog-reader-db",
+      });
+      await this.db.exec(`
+        CREATE TABLE IF NOT EXISTS highlights (
+          id SERIAL PRIMARY KEY,
+          article_id TEXT NOT NULL,
+          text TEXT NOT NULL,
+          color TEXT NOT NULL,
+          position TEXT NOT NULL,
+          created_at BIGINT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_highlights_article ON highlights(article_id);
+        CREATE TABLE IF NOT EXISTS progress (
+          article_id TEXT PRIMARY KEY,
+          scroll_position INTEGER NOT NULL,
+          percentage DECIMAL(5,2) NOT NULL,
+          last_read BIGINT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS stats (
+          article_id TEXT PRIMARY KEY,
+          total_time_spent INTEGER NOT NULL,
+          percentage DECIMAL(5,2) NOT NULL,
+          last_visit BIGINT NOT NULL,
+          completed BOOLEAN DEFAULT FALSE
+        );
+      `);
+      console.log("✅ PGlite database initialized");
+    } catch (error) {
+      console.error("PGlite initialization failed:", error);
+      throw error;
+    }
+  }
+
+  async saveToPGlite(type, data) {
+    try {
+      if (type === "highlights") {
+        await this.db.query(`INSERT INTO highlights (article_id, text, color, position, created_at) VALUES ($1, $2, $3, $4, $5)`, [
+          data.articleId,
+          data.text,
+          data.color,
+          JSON.stringify(data.position),
+          data.createdAt,
+        ]);
+      } else if (type === "progress") {
+        await this.db.query(
+          `INSERT INTO progress (article_id, scroll_position, percentage, last_read)
+           VALUES ($1, $2, $3, $4) ON CONFLICT (article_id) 
+           DO UPDATE SET scroll_position = $2, percentage = $3, last_read = $4`,
+          [data.articleId, data.scrollPosition, data.percentage, data.lastRead]
+        );
+      } else if (type === "stats") {
+        await this.db.query(
+          `INSERT INTO stats (article_id, total_time_spent, percentage, last_visit, completed)
+           VALUES ($1, $2, $3, $4, $5) ON CONFLICT (article_id)
+           DO UPDATE SET total_time_spent = $2, percentage = $3, last_visit = $4, completed = $5`,
+          [data.articleId, data.totalTimeSpent, data.percentage, data.lastVisit, data.completed]
+        );
+      }
+    } catch (error) {
+      console.error("PGlite save error:", error);
+      throw error;
+    }
+  }
+
+  async loadFromPGlite(type, articleId) {
+    try {
+      if (type === "highlights") {
+        const result = await this.db.query("SELECT * FROM highlights WHERE article_id = $1 ORDER BY created_at DESC", [articleId]);
+        return result.rows.map((row) => ({
+          id: row.id,
+          articleId: row.article_id,
+          text: row.text,
+          color: row.color,
+          position: typeof row.position === "string" ? JSON.parse(row.position) : row.position,
+          createdAt: row.created_at,
+        }));
+      } else {
+        const result = await this.db.query(`SELECT * FROM ${type} WHERE article_id = $1`, [articleId]);
+        if (result.rows.length === 0) return null;
+        const row = result.rows[0];
+        if (type === "progress") {
+          return {
+            articleId: row.article_id,
+            scrollPosition: row.scroll_position,
+            percentage: parseFloat(row.percentage),
+            lastRead: row.last_read,
+          };
+        } else if (type === "stats") {
+          return {
+            articleId: row.article_id,
+            totalTimeSpent: row.total_time_spent,
+            percentage: parseFloat(row.percentage),
+            lastVisit: row.last_visit,
+            completed: row.completed,
+          };
+        }
+      }
+    } catch (error) {
+      console.error("PGlite load error:", error);
+      return type === "highlights" ? [] : null;
+    }
+  }
+
+  async getPGliteAnalytics() {
+    try {
+      const statsResult = await this.db.query(`
+        SELECT COUNT(*) as total_articles, SUM(total_time_spent) as total_time,
+               AVG(percentage) as avg_completion, COUNT(CASE WHEN completed THEN 1 END) as completed_count
+        FROM stats
+      `);
+      const highlightsResult = await this.db.query("SELECT COUNT(*) as total_highlights FROM highlights");
+      const stats = statsResult.rows[0];
+      const highlights = highlightsResult.rows[0];
+      return {
+        totalArticles: parseInt(stats.total_articles || 0),
+        totalReadingTime: parseInt(stats.total_time || 0),
+        avgCompletion: parseFloat(stats.avg_completion || 0),
+        completedArticles: parseInt(stats.completed_count || 0),
+        totalHighlights: parseInt(highlights.total_highlights || 0),
+      };
+    } catch (error) {
+      console.error("Analytics error:", error);
+      return null;
+    }
+  }
+
   initIndexedDB() {
     return new Promise((resolve, reject) => {
       const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-
       const request = indexedDB.open("BlogReadingDB", 1);
-
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         this.db = request.result;
         resolve();
       };
-
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
         if (!db.objectStoreNames.contains("highlights")) {
-          const highlightStore = db.createObjectStore("highlights", {
-            keyPath: "id",
-            autoIncrement: true,
-          });
+          const highlightStore = db.createObjectStore("highlights", { keyPath: "id", autoIncrement: true });
           highlightStore.createIndex("articleId", "articleId", { unique: false });
         }
         if (!db.objectStoreNames.contains("progress")) {
@@ -97,6 +249,55 @@ export class Reader {
           db.createObjectStore("stats", { keyPath: "articleId" });
         }
       };
+    });
+  }
+
+  saveToIndexedDB(storeName, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = this.db.transaction([storeName], "readwrite");
+        const store = transaction.objectStore(storeName);
+        const request = store.put(data);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  loadFromIndexedDB(storeName, articleId) {
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = this.db.transaction([storeName], "readonly");
+        const store = transaction.objectStore(storeName);
+        if (storeName === "highlights") {
+          const index = store.index("articleId");
+          const request = index.getAll(articleId);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        } else {
+          const request = store.get(articleId);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        }
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  getFromIndexedDB(storeName, articleId) {
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = this.db.transaction([storeName], "readonly");
+        const store = transaction.objectStore(storeName);
+        const request = store.get(articleId);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
@@ -132,35 +333,11 @@ export class Reader {
 
   initMemoryStorage() {
     this.storageType = "memory";
-    this.db = {
-      highlights: [],
-      progress: {},
-      stats: {},
-    };
-  }
-
-  setupHighlighting() {
-    const contentArea = document.querySelector(".blog-content, article, main");
-    if (!contentArea) return;
-
-    contentArea.addEventListener("mouseup", async (e) => {
-      const selection = window.getSelection();
-      const text = selection.toString().trim();
-
-      if (text.length > 3 && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        if (!contentArea.contains(range.commonAncestorContainer)) return;
-
-        await this.saveHighlight(text, range);
-        this.applyHighlight(range, this.currentColor);
-        selection.removeAllRanges();
-      }
-    });
+    this.db = { highlights: [], progress: {}, stats: {} };
   }
 
   async saveHighlight(text, range) {
     const position = this.serializeRange(range);
-
     const highlight = {
       id: Date.now() + Math.random(),
       articleId: this.articleId,
@@ -169,17 +346,105 @@ export class Reader {
       position: position,
       createdAt: Date.now(),
     };
-
-    if (this.storageType === "indexedDB") {
-      return this.saveToIndexedDB("highlights", highlight);
-    } else if (this.storageType === "localStorage") {
-      this.db.highlights.push(highlight);
-      this.setToLocalStorage("highlights", this.db.highlights);
-    } else {
-      this.db.highlights.push(highlight);
+    switch (this.storageType) {
+      case "pglite":
+        return this.saveToPGlite("highlights", highlight);
+      case "indexedDB":
+        return this.saveToIndexedDB("highlights", highlight);
+      case "localStorage":
+        this.db.highlights.push(highlight);
+        this.setToLocalStorage("highlights", this.db.highlights);
+        break;
+      default:
+        this.db.highlights.push(highlight);
     }
-
     return highlight;
+  }
+
+  async loadHighlights() {
+    let highlights = [];
+    switch (this.storageType) {
+      case "pglite":
+        highlights = await this.loadFromPGlite("highlights", this.articleId);
+        break;
+      case "indexedDB":
+        highlights = await this.loadFromIndexedDB("highlights", this.articleId);
+        break;
+      case "localStorage":
+        const all = this.getFromLocalStorage("highlights") || [];
+        highlights = all.filter((h) => h.articleId === this.articleId);
+        break;
+      default:
+        highlights = this.db.highlights.filter((h) => h.articleId === this.articleId);
+    }
+    highlights.forEach((highlight) => {
+      try {
+        const range = this.deserializeRange(highlight.position);
+        if (range) {
+          this.applyHighlight(range, highlight.color);
+        }
+      } catch (e) {
+        console.warn("Could not restore highlight:", e);
+      }
+    });
+    return highlights;
+  }
+
+  async saveProgress() {
+    const progress = {
+      articleId: this.articleId,
+      scrollPosition: window.scrollY,
+      percentage: this.getReadingPercentage(),
+      lastRead: Date.now(),
+    };
+    switch (this.storageType) {
+      case "pglite":
+        return this.saveToPGlite("progress", progress);
+      case "indexedDB":
+        return this.saveToIndexedDB("progress", progress);
+      case "localStorage":
+        this.db.progress[this.articleId] = progress;
+        this.setToLocalStorage("progress", this.db.progress);
+        break;
+      default:
+        this.db.progress[this.articleId] = progress;
+    }
+  }
+
+  async getProgress() {
+    switch (this.storageType) {
+      case "pglite":
+        return this.loadFromPGlite("progress", this.articleId);
+      case "indexedDB":
+        return this.getFromIndexedDB("progress", this.articleId);
+      case "localStorage":
+        const allProgress = this.getFromLocalStorage("progress") || {};
+        return allProgress[this.articleId];
+      default:
+        return this.db.progress[this.articleId];
+    }
+  }
+
+  async saveStats() {
+    const stats = {
+      articleId: this.articleId,
+      totalTimeSpent: this.timeSpent,
+      percentage: this.getReadingPercentage(),
+      lastVisit: Date.now(),
+      completed: this.getReadingPercentage() >= 90,
+    };
+    switch (this.storageType) {
+      case "pglite":
+        return this.saveToPGlite("stats", stats);
+      case "indexedDB":
+        return this.saveToIndexedDB("stats", stats);
+      case "localStorage":
+        this.db.stats[this.articleId] = stats;
+        this.setToLocalStorage("stats", this.db.stats);
+        break;
+      default:
+        this.db.stats[this.articleId] = stats;
+    }
   }
 
   serializeRange(range) {
@@ -195,7 +460,6 @@ export class Reader {
   getNodePath(node) {
     const path = [];
     let current = node;
-
     while (current && current !== document.body) {
       const parent = current.parentNode;
       if (parent) {
@@ -204,18 +468,168 @@ export class Reader {
       }
       current = parent;
     }
-
     return path;
+  }
+
+  deserializeRange(position) {
+    try {
+      const startNode = this.getNodeByPath(position.startPath);
+      const endNode = this.getNodeByPath(position.endPath);
+      if (!startNode || !endNode) return null;
+      const range = document.createRange();
+      range.setStart(startNode, position.startOffset);
+      range.setEnd(endNode, position.endOffset);
+      return range;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  getNodeByPath(path) {
+    let node = document.body;
+    for (const index of path) {
+      if (node.childNodes[index]) {
+        node = node.childNodes[index];
+      } else {
+        return null;
+      }
+    }
+    return node;
+  }
+
+  setupHighlighting() {
+    const contentArea = document.querySelector(".blog-content, article, main");
+    if (!contentArea) return;
+    contentArea.addEventListener("mouseup", async (e) => {
+      const selection = window.getSelection();
+      const text = selection.toString().trim();
+      if (text.length > 3 && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        if (!contentArea.contains(range.commonAncestorContainer)) return;
+        await this.saveHighlight(text, range);
+        this.applyHighlight(range, this.currentColor);
+        selection.removeAllRanges();
+      }
+    });
+  }
+
+  setupMobileHighlighting() {
+    const contentArea = document.querySelector(".blog-content, article, main");
+    if (!contentArea) return;
+    this.createSelectionMenu();
+    contentArea.addEventListener("touchstart", (e) => {
+      this.longPressTimer = setTimeout(() => {
+        this.handleLongPress(e);
+      }, this.longPressDuration);
+    });
+    contentArea.addEventListener("touchmove", () => {
+      clearTimeout(this.longPressTimer);
+    });
+    contentArea.addEventListener("touchend", () => {
+      clearTimeout(this.longPressTimer);
+    });
+    document.addEventListener("selectionchange", () => {
+      this.handleMobileSelection();
+    });
+    document.addEventListener("touchstart", (e) => {
+      if (this.selectionMenu && !this.selectionMenu.contains(e.target)) {
+        this.hideSelectionMenu();
+      }
+    });
+  }
+
+  handleLongPress(e) {
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+    setTimeout(() => {
+      this.handleMobileSelection();
+    }, 100);
+  }
+
+  handleMobileSelection() {
+    const selection = window.getSelection();
+    const text = selection.toString().trim();
+    if (text.length > 3 && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      this.selectedRange = range;
+      const rect = range.getBoundingClientRect();
+      this.showSelectionMenu(rect);
+    } else {
+      this.hideSelectionMenu();
+    }
+  }
+
+  createSelectionMenu() {
+    if (this.selectionMenu) return;
+    this.selectionMenu = window.App.modules.util.createElement("div", "mobile-selection-menu");
+    const colors = [
+      { name: "yellow", color: "#fff59d", icon: "🟡" },
+      { name: "green", color: "#a5d6a7", icon: "🟢" },
+      { name: "pink", color: "#f48fb1", icon: "🔴" },
+      { name: "blue", color: "#81d4fa", icon: "🔵" },
+    ];
+    colors.forEach((colorInfo) => {
+      const btn = window.App.modules.util.createElement("button", "selection-color-btn");
+      btn.innerHTML = colorInfo.icon;
+      btn.style.backgroundColor = colorInfo.color;
+      btn.addEventListener("click", async () => {
+        if (this.selectedRange) {
+          this.currentColor = colorInfo.name;
+          await this.saveHighlight(this.selectedRange.toString().trim(), this.selectedRange);
+          this.applyHighlight(this.selectedRange, colorInfo.name);
+          window.getSelection().removeAllRanges();
+          this.hideSelectionMenu();
+        }
+      });
+      this.selectionMenu.appendChild(btn);
+    });
+    const copyBtn = window.App.modules.util.createElement("button", "selection-action-btn");
+    copyBtn.innerHTML = "📋";
+    copyBtn.addEventListener("click", () => {
+      const text = this.selectedRange.toString();
+      navigator.clipboard.writeText(text).then(() => {
+        this.showNotification("Copied!", "success");
+        this.hideSelectionMenu();
+      });
+    });
+    this.selectionMenu.appendChild(copyBtn);
+    document.body.appendChild(this.selectionMenu);
+  }
+
+  showSelectionMenu(rect) {
+    if (!this.selectionMenu) return;
+    const menuHeight = 50;
+    const menuWidth = 250;
+    let top = rect.top - menuHeight - 10;
+    let left = rect.left + rect.width / 2 - menuWidth / 2;
+    if (top < 0) {
+      top = rect.bottom + 10;
+    }
+    if (left < 10) {
+      left = 10;
+    } else if (left + menuWidth > window.innerWidth - 10) {
+      left = window.innerWidth - menuWidth - 10;
+    }
+    this.selectionMenu.style.top = `${top + window.scrollY}px`;
+    this.selectionMenu.style.left = `${left}px`;
+    this.selectionMenu.style.display = "flex";
+  }
+
+  hideSelectionMenu() {
+    if (this.selectionMenu) {
+      this.selectionMenu.style.display = "none";
+    }
+    this.selectedRange = null;
   }
 
   applyHighlight(range, color) {
     const span = document.createElement("span");
     span.className = "blog-highlight";
-    span.setAttribute('title', "Remove Highlights.");
+    span.setAttribute("title", "Remove Highlights.");
     span.style.backgroundColor = this.highlightColors[color];
     span.style.cursor = "pointer";
     span.setAttribute("data-highlight-color", color);
-
     try {
       range.surroundContents(span);
       span.addEventListener("click", (e) => {
@@ -245,66 +659,8 @@ export class Reader {
     }
   }
 
-  async loadHighlights() {
-    let highlights = [];
-
-    if (this.storageType === "indexedDB") {
-      highlights = await this.loadFromIndexedDB("highlights", this.articleId);
-    } else if (this.storageType === "localStorage") {
-      const allHighlights = this.getFromLocalStorage("highlights") || [];
-      highlights = allHighlights.filter((h) => h.articleId === this.articleId);
-    } else {
-      highlights = this.db.highlights.filter((h) => h.articleId === this.articleId);
-    }
-
-    highlights.forEach((highlight) => {
-      try {
-        const range = this.deserializeRange(highlight.position);
-        if (range) {
-          this.applyHighlight(range, highlight.color);
-        }
-      } catch (e) {
-        console.warn("Could not restore highlight:", e);
-      }
-    });
-
-    return highlights;
-  }
-
-  deserializeRange(position) {
-    try {
-      const startNode = this.getNodeByPath(position.startPath);
-      const endNode = this.getNodeByPath(position.endPath);
-
-      if (!startNode || !endNode) return null;
-
-      const range = document.createRange();
-      range.setStart(startNode, position.startOffset);
-      range.setEnd(endNode, position.endOffset);
-
-      return range;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  getNodeByPath(path) {
-    let node = document.body;
-
-    for (const index of path) {
-      if (node.childNodes[index]) {
-        node = node.childNodes[index];
-      } else {
-        return null;
-      }
-    }
-
-    return node;
-  }
-
   setupReadingProgress() {
     let scrollTimeout;
-
     window.addEventListener("scroll", () => {
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
@@ -313,7 +669,6 @@ export class Reader {
         this.checkReadingCompletion();
       }, 500);
     });
-
     window.addEventListener("beforeunload", () => {
       this.saveProgress();
       this.saveStats();
@@ -331,11 +686,9 @@ export class Reader {
   showCompletionDialog() {
     const minutes = Math.floor(this.timeSpent / 60);
     const seconds = this.timeSpent % 60;
-
     this.showDialog(
       "Reading Completed!",
-      `Congratulations! You've completed this article.<br><br>
-       <strong>Total Reading Time:</strong> ${minutes}m ${seconds}s`,
+      `Congratulations! You've completed this article.<br><br><strong>Total Reading Time:</strong> ${minutes}m ${seconds}s`,
       [
         {
           text: "Revise",
@@ -359,30 +712,10 @@ export class Reader {
     );
   }
 
-  async saveProgress() {
-    const progress = {
-      articleId: this.articleId,
-      scrollPosition: window.scrollY,
-      percentage: this.getReadingPercentage(),
-      lastRead: Date.now(),
-    };
-
-    if (this.storageType === "indexedDB") {
-      return this.saveToIndexedDB("progress", progress);
-    } else if (this.storageType === "localStorage") {
-      this.db.progress[this.articleId] = progress;
-      this.setToLocalStorage("progress", this.db.progress);
-    } else {
-      this.db.progress[this.articleId] = progress;
-    }
-  }
-
   async loadReadingState() {
     const progress = await this.getProgress();
-
     if (progress && progress.scrollPosition > 100) {
       const dontAskAgain = this.getPreference("dontAskResume");
-
       if (dontAskAgain) {
         window.scrollTo({ top: progress.scrollPosition, behavior: "smooth" });
       } else {
@@ -394,7 +727,6 @@ export class Reader {
 
   showResumeDialog(progress) {
     const checkboxId = "dont-ask-resume-" + Date.now();
-
     this.showDialog(
       "Resume Reading?",
       `You were reading this article earlier. Would you like to continue where you left off?
@@ -432,22 +764,10 @@ export class Reader {
     );
   }
 
-  async getProgress() {
-    if (this.storageType === "indexedDB") {
-      return this.getFromIndexedDB("progress", this.articleId);
-    } else if (this.storageType === "localStorage") {
-      const allProgress = this.getFromLocalStorage("progress") || {};
-      return allProgress[this.articleId];
-    } else {
-      return this.db.progress[this.articleId];
-    }
-  }
-
   getReadingPercentage() {
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
     const scrollTop = window.scrollY;
-
     const percentage = (scrollTop / (documentHeight - windowHeight)) * 100;
     return Math.min(100, Math.max(0, percentage));
   }
@@ -456,7 +776,6 @@ export class Reader {
     const progressBar = document.getElementById("reading-progress-bar");
     const headerProgressBar = document.getElementById("header-reading-progress-bar");
     const percentage = this.getReadingPercentage();
-
     if (progressBar) {
       progressBar.style.width = `${percentage}%`;
     }
@@ -500,33 +819,12 @@ export class Reader {
     }
   }
 
-  async saveStats() {
-    const stats = {
-      articleId: this.articleId,
-      totalTimeSpent: this.timeSpent,
-      percentage: this.getReadingPercentage(),
-      lastVisit: Date.now(),
-      completed: this.getReadingPercentage() >= 90,
-    };
-
-    if (this.storageType === "indexedDB") {
-      return this.saveToIndexedDB("stats", stats);
-    } else if (this.storageType === "localStorage") {
-      this.db.stats[this.articleId] = stats;
-      this.setToLocalStorage("stats", this.db.stats);
-    } else {
-      this.db.stats[this.articleId] = stats;
-    }
-  }
-
   updateTimeDisplay() {
     const minutes = Math.floor(this.timeSpent / 60);
     const seconds = this.timeSpent % 60;
     const timeStr = `${minutes}m ${seconds}s`;
-
     const toolbarDisplay = document.getElementById("reading-time-display");
     const headerDisplay = document.getElementById("header-reading-time");
-
     if (toolbarDisplay) {
       toolbarDisplay.textContent = timeStr;
     }
@@ -553,25 +851,24 @@ export class Reader {
     const content = document.querySelector("#toolbar-content");
     const reader = document.querySelector("#reader-btn-container");
     const renderBlock = document.querySelectorAll("[data-move-to-header]");
-    content && reader && renderBlock.forEach((el) => {
-      if (el.getAttribute("data-move-to-header") == "timer") {
-       reader.insertBefore(el, reader.firstChild);
-      }
-      if (el.getAttribute("data-move-to-header") == "progress") {
-        content.insertBefore(el, content.firstChild);
-      }
-    });
+    content &&
+      reader &&
+      renderBlock.forEach((el) => {
+        if (el.getAttribute("data-move-to-header") == "timer") {
+          reader.insertBefore(el, reader.firstChild);
+        }
+        if (el.getAttribute("data-move-to-header") == "progress") {
+          content.insertBefore(el, content.firstChild);
+        }
+      });
   }
 
   toggleMinimize() {
     const toolbar = document.getElementById("reading-toolbar");
     const content = document.getElementById("toolbar-content");
     const toggleBtn = document.getElementById("toolbar-toggle-btn");
-
     if (!toolbar || !content || !toggleBtn) return;
-
     this.isMinimized = !this.isMinimized;
-
     if (this.isMinimized) {
       toolbar.classList.add("minimized");
       content.style.display = "none";
@@ -589,7 +886,6 @@ export class Reader {
 
   createToolbar() {
     if (document.getElementById("reading-toolbar")) return;
-
     const toolbar = window.App.modules.util.createElement("div", "glass-card");
     toolbar.id = "reading-toolbar";
     const header = window.App.modules.util.createElement("div", "");
@@ -677,16 +973,20 @@ export class Reader {
 
   async exportHighlights() {
     let highlights = [];
-
-    if (this.storageType === "indexedDB") {
-      highlights = await this.loadFromIndexedDB("highlights", this.articleId);
-    } else if (this.storageType === "localStorage") {
-      const allHighlights = this.getFromLocalStorage("highlights") || [];
-      highlights = allHighlights.filter((h) => h.articleId === this.articleId);
-    } else {
-      highlights = this.db.highlights.filter((h) => h.articleId === this.articleId);
+    switch (this.storageType) {
+      case "pglite":
+        highlights = await this.loadFromPGlite("highlights", this.articleId);
+        break;
+      case "indexedDB":
+        highlights = await this.loadFromIndexedDB("highlights", this.articleId);
+        break;
+      case "localStorage":
+        const allHighlights = this.getFromLocalStorage("highlights") || [];
+        highlights = allHighlights.filter((h) => h.articleId === this.articleId);
+        break;
+      default:
+        highlights = this.db.highlights.filter((h) => h.articleId === this.articleId);
     }
-
     const exportData = {
       article: this.articleId,
       exportDate: new Date().toISOString(),
@@ -697,111 +997,53 @@ export class Reader {
         createdAt: new Date(h.createdAt).toISOString(),
       })),
     };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = `highlights-${this.articleId}.json`;
     a.click();
     URL.revokeObjectURL(url);
-
     this.showNotification(`Exported ${highlights.length} highlights!`, "success");
     return exportData;
-  }
-
-  saveToIndexedDB(storeName, data) {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([storeName], "readwrite");
-        const store = transaction.objectStore(storeName);
-        const request = store.put(data);
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  }
-
-  loadFromIndexedDB(storeName, articleId) {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([storeName], "readonly");
-        const store = transaction.objectStore(storeName);
-
-        if (storeName === "highlights") {
-          const index = store.index("articleId");
-          const request = index.getAll(articleId);
-          request.onsuccess = () => resolve(request.result);
-          request.onerror = () => reject(request.error);
-        } else {
-          const request = store.get(articleId);
-          request.onsuccess = () => resolve(request.result);
-          request.onerror = () => reject(request.error);
-        }
-      } catch (e) {
-        reject(e);
-      }
-    });
-  }
-
-  getFromIndexedDB(storeName, articleId) {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([storeName], "readonly");
-        const store = transaction.objectStore(storeName);
-        const request = store.get(articleId);
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      } catch (e) {
-        reject(e);
-      }
-    });
   }
 
   destroy() {
     if (this.readingTimer) {
       clearInterval(this.readingTimer);
     }
-    this.saveProgress();
-    this.saveStats();
-
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+    }
+    if (this.selectionMenu) {
+      this.selectionMenu.remove();
+    }
     const headerContainer = document.querySelector(".header-reading-container");
     if (headerContainer) {
       headerContainer.remove();
     }
+    this.saveProgress();
+    this.saveStats();
   }
 
   showDialog(title, message, buttons = [], icon = "⚠️") {
     let overlay = document.getElementById("reader-dialog-overlay");
-
     if (!overlay) {
       overlay = window.App.modules.util.createElement("div", "reader-dialog-overlay");
       overlay.id = "reader-dialog-overlay";
       document.body.appendChild(overlay);
     }
-
     overlay.innerHTML = "";
-
     const dialog = window.App.modules.util.createElement("div", "reader-dialog");
-
     const header = window.App.modules.util.createElement("div", "reader-dialog-header");
     const dialogIcon = window.App.modules.util.createElement("span", "reader-dialog-icon");
     dialogIcon.innerHTML = icon;
     const dialogTitle = window.App.modules.util.createElement("h3", "reader-dialog-title", title);
     header.appendChild(dialogIcon);
     header.appendChild(dialogTitle);
-
     const body = window.App.modules.util.createElement("div", "reader-dialog-body");
     body.innerHTML = message;
-
     const actions = window.App.modules.util.createElement("div", "reader-dialog-actions");
-
     buttons.forEach((btn) => {
       const button = window.App.modules.util.createElement("button", `reader-dialog-btn btn ${btn.className}`, btn.text);
       button.addEventListener("click", () => {
@@ -812,14 +1054,11 @@ export class Reader {
       });
       actions.appendChild(button);
     });
-
     dialog.appendChild(header);
     dialog.appendChild(body);
     dialog.appendChild(actions);
-
     overlay.appendChild(dialog);
     overlay.style.display = "flex";
-
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
         overlay.style.display = "none";
@@ -829,24 +1068,18 @@ export class Reader {
 
   showNotification(message, type = "info") {
     const notification = window.App.modules.util.createElement("div", "reader-notification");
-
     const icons = {
       success: '<i class="fa-solid fa-check-double"></i>',
       error: '<i class="fa-solid fa-bug"></i>',
       warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
       info: '<i class="fa-solid fa-exclamation"></i>',
     };
-
     const icon = window.App.modules.util.createElement("span", "reader-notification-icon");
     icon.innerHTML = icons[type] || icons.info;
-
     const msg = window.App.modules.util.createElement("span", "reader-notification-message", message);
-
     notification.appendChild(icon);
     notification.appendChild(msg);
-
     document.body.appendChild(notification);
-
     setTimeout(() => {
       if (notification.parentNode) {
         document.body.removeChild(notification);
