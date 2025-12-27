@@ -104,7 +104,7 @@
     visibility: visible;
   }
   body:has(.mobile-sidebar-controls) .page-container {
-    margin-top: calc(var(--space-15, 3.75rem));
+    margin-top: calc(var(--space-12, 3.75rem));
     position: relative;
   }
   body:has(.sidebar-overlay.active) {
@@ -318,7 +318,7 @@
     visibility: visible;
   }
   body:has(.mobile-sidebar-controls) .page-container {
-    margin-top: calc(var(--space-15, 3.75rem));
+    margin-top: calc(var(--space-12, 3.75rem));
     position: relative;
   }
   body:has(.sidebar-overlay.active) {
@@ -774,7 +774,7 @@
   }
   #bmc-wbtn {
     top: 6rem;
-    right: 1rem !important;
+    left: 0.5rem !important;
   }
   .minimized #toolbar-title {
     font-size: 0;
