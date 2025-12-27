@@ -772,6 +772,23 @@
     --fontSize-2xl: 1.25rem;
     --fontSize-xl: 1.125rem;
   }
+  #bmc-wbtn {
+    top: 6rem;
+    right: 1rem !important;
+  }
+  .minimized #toolbar-title {
+    font-size: 0;
+  }
+  .minimized #toolbar-title > i{
+    font-size: var(--fontSize-md);
+  }
+   #reading-toolbar {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    max-width: 100%;
+    width: 100%;
+  }
   .left-sidebar-card {
     max-width: 95%;
   }
