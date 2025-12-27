@@ -528,7 +528,7 @@
 @media (max-width: 480px) and (orientation: portrait) {
   #bmc-wbtn {
     top: 6rem;
-    right: 1rem !important;
+    left: 0.5rem !important;
   }
   .minimized #toolbar-title {
     font-size: 0;
@@ -673,7 +673,7 @@
 @media (max-width: 480px) and (orientation: landscape) {
   #bmc-wbtn {
     top: 6rem;
-    right: 1rem !important;
+    left: 0.5rem !important;
   }
   .minimized #toolbar-title {
     font-size: 0;
