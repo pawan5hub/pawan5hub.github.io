@@ -599,14 +599,6 @@ div[data-header-progress] #reading-progress-container {
   transform: scale(0.95);
 }
 
-#reading-toolbar {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  max-width: 400px;
-  z-index: 1000;
-}
-
 @media (max-width: 768px) {
   #reading-toolbar {
     bottom: 0;
